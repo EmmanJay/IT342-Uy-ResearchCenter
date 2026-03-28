@@ -1,4 +1,4 @@
-package main.java.edu.cit.uy.researchcenter.config;
+package edu.cit.uy.researchcenter.config;
 
 import edu.cit.uy.researchcenter.service.UserService;
 import lombok.RequiredArgsConstructor;

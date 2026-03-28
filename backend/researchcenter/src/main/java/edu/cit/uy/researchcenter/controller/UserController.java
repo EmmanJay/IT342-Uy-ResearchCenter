@@ -1,4 +1,4 @@
-package main.java.edu.cit.uy.researchcenter.controller;
+package edu.cit.uy.researchcenter.controller;
 
 import edu.cit.uy.researchcenter.dto.ApiResponse;
 import edu.cit.uy.researchcenter.dto.AuthResponse;

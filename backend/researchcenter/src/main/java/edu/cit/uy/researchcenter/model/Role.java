@@ -1,4 +1,4 @@
-package main.java.edu.cit.uy.researchcenter.model;
+package edu.cit.uy.researchcenter.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
