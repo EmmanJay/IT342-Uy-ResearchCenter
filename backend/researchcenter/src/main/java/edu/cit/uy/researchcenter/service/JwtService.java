@@ -1,4 +1,4 @@
-package main.java.edu.cit.uy.researchcenter.service;
+package edu.cit.uy.researchcenter.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
