@@ -1,4 +1,4 @@
-package main.java.edu.cit.uy.researchcenter.dto;
+package edu.cit.uy.researchcenter.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

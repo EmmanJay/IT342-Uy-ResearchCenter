@@ -1,4 +1,4 @@
-package main.java.edu.cit.uy.researchcenter.service;
+package edu.cit.uy.researchcenter.service;
 
 import edu.cit.uy.researchcenter.dto.AuthResponse;
 import edu.cit.uy.researchcenter.dto.LoginRequest;

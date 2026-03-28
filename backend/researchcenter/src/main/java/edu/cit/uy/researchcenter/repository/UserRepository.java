@@ -1,4 +1,4 @@
-package main.java.edu.cit.uy.researchcenter.repository;
+package edu.cit.uy.researchcenter.repository;
 
 import edu.cit.uy.researchcenter.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
