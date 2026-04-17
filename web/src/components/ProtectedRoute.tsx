@@ -1,9 +1,16 @@
-import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
+import { SessionManager } from '../auth/sessionManager';
 
-const ProtectedRoute = ({ children }: { children: ReactNode }) => {
-  const token = localStorage.getItem('accessToken');
-  return token ? <>{children}</> : <Navigate to="/login" replace />;
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+}
+
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+  if (!SessionManager.isLoggedIn()) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;
