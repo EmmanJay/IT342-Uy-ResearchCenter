@@ -1,8 +1,15 @@
-package edu.cit.uy.researchcenter.service;
+package edu.cit.uy.researchcenter.features.material;
 
-import edu.cit.uy.researchcenter.dto.*;
-import edu.cit.uy.researchcenter.model.*;
-import edu.cit.uy.researchcenter.repository.*;
+import edu.cit.uy.researchcenter.features.material.dto.*;
+import edu.cit.uy.researchcenter.features.material.model.*;
+import edu.cit.uy.researchcenter.features.material.repository.*;
+import edu.cit.uy.researchcenter.features.auth.model.User;
+import edu.cit.uy.researchcenter.features.auth.repository.UserRepository;
+import edu.cit.uy.researchcenter.features.repository.repository.ResearchRepositoryRepo;
+import edu.cit.uy.researchcenter.features.repository.repository.RepositoryMemberRepo;
+import edu.cit.uy.researchcenter.features.repository.model.ResearchRepository;
+import edu.cit.uy.researchcenter.features.request.repository.MaterialRequestRepo;
+import edu.cit.uy.researchcenter.features.request.model.MaterialRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

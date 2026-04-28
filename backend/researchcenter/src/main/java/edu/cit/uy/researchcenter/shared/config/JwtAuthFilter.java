@@ -1,7 +1,7 @@
 package edu.cit.uy.researchcenter.shared.config;
 
 import edu.cit.uy.researchcenter.features.auth.JwtService;
-import edu.cit.uy.researchcenter.service.UserService;
+import edu.cit.uy.researchcenter.features.user.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

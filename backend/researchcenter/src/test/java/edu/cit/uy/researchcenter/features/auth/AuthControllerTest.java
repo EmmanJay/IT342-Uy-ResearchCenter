@@ -40,7 +40,7 @@ class AuthControllerTest {
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.data.accessToken").exists())
             .andExpect(jsonPath("$.data.refreshToken").exists())
-            .andExpect(jsonPath("$.data.user.email").value(testEmail));
+            .andExpect(jsonPath("$.data.email").value(testEmail));
     }
 
     @Test @Order(2)

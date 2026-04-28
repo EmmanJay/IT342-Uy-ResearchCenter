@@ -1,6 +1,6 @@
-package edu.cit.uy.researchcenter.repository;
+package edu.cit.uy.researchcenter.features.material.repository;
 
-import edu.cit.uy.researchcenter.model.Bookmark;
+import edu.cit.uy.researchcenter.features.material.model.Bookmark;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

@@ -1,6 +1,6 @@
-package edu.cit.uy.researchcenter.repository;
+package edu.cit.uy.researchcenter.features.repository.repository;
 
-import edu.cit.uy.researchcenter.model.RepositoryMember;
+import edu.cit.uy.researchcenter.features.repository.model.RepositoryMember;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

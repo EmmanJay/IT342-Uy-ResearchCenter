@@ -1,6 +1,6 @@
-package edu.cit.uy.researchcenter.service;
+package edu.cit.uy.researchcenter.features.bookMetadata;
 
-import edu.cit.uy.researchcenter.dto.BookMetadataResponse;
+import edu.cit.uy.researchcenter.features.bookMetadata.dto.BookMetadataResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;

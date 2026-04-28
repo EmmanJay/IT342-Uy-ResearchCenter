@@ -1,12 +1,12 @@
-package edu.cit.uy.researchcenter.controller;
+package edu.cit.uy.researchcenter.features.material;
 
-import edu.cit.uy.researchcenter.dto.*;
-import edu.cit.uy.researchcenter.model.User;
-import edu.cit.uy.researchcenter.service.UserService;
+import edu.cit.uy.researchcenter.features.material.dto.*;
+import edu.cit.uy.researchcenter.features.auth.model.User;
+import edu.cit.uy.researchcenter.features.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
-import edu.cit.uy.researchcenter.service.MaterialService;
+import edu.cit.uy.researchcenter.features.material.MaterialService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

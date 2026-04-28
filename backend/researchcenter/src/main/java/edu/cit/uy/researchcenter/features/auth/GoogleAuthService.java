@@ -11,6 +11,7 @@ import edu.cit.uy.researchcenter.features.auth.model.User;
 import edu.cit.uy.researchcenter.features.auth.repository.RefreshTokenRepository;
 import edu.cit.uy.researchcenter.features.auth.repository.RoleRepository;
 import edu.cit.uy.researchcenter.features.auth.repository.UserRepository;
+import edu.cit.uy.researchcenter.features.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;

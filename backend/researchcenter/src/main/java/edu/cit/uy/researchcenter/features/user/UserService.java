@@ -1,7 +1,7 @@
-package edu.cit.uy.researchcenter.service;
+package edu.cit.uy.researchcenter.features.user;
 
-import edu.cit.uy.researchcenter.model.User;
-import edu.cit.uy.researchcenter.repository.UserRepository;
+import edu.cit.uy.researchcenter.features.auth.model.User;
+import edu.cit.uy.researchcenter.features.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

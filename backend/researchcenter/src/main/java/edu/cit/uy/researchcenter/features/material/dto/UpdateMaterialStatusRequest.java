@@ -1,4 +1,4 @@
-package edu.cit.uy.researchcenter.dto;
+package edu.cit.uy.researchcenter.features.material.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

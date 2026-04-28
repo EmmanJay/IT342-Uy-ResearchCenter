@@ -1,4 +1,4 @@
-package edu.cit.uy.researchcenter.dto;
+package edu.cit.uy.researchcenter.features.bookMetadata.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

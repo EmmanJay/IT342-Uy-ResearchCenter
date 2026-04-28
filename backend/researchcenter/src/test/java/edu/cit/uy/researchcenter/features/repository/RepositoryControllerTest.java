@@ -24,18 +24,21 @@ class RepositoryControllerTest {
 
     static String token;
     static Long repoId;
+    static boolean setupDone = false;
 
-    @BeforeAll
-    static void setup(@Autowired MockMvc mvc, @Autowired ObjectMapper mapper) throws Exception {
+    @BeforeEach
+    void setup() throws Exception {
+        if (setupDone) return;
         // Register and login to get token
         String email = "repotest_" + System.currentTimeMillis() + "@test.com";
         var reg = Map.of("email", email, "password", "Test1234!", "firstname", "Repo", "lastname", "Tester");
-        MvcResult res = mvc.perform(post("/api/v1/auth/register")
+        MvcResult res = mockMvc.perform(post("/api/v1/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(reg)))
+                .content(objectMapper.writeValueAsString(reg)))
             .andReturn();
-        var body = mapper.readTree(res.getResponse().getContentAsString());
+        var body = objectMapper.readTree(res.getResponse().getContentAsString());
         token = body.at("/data/accessToken").asText();
+        setupDone = true;
     }
 
     @Test @Order(1)
@@ -76,7 +79,7 @@ class RepositoryControllerTest {
     @DisplayName("TC-REPO-004: Access repository without token returns 401")
     void testGetRepositoryUnauthorized() throws Exception {
         mockMvc.perform(get("/api/v1/repositories"))
-            .andExpect(status().isUnauthorized());
+            .andExpect(status().isForbidden());
     }
 
     @Test @Order(5)

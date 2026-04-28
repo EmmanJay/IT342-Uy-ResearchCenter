@@ -1,7 +1,9 @@
-package edu.cit.uy.researchcenter.model;
+package edu.cit.uy.researchcenter.features.material.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import edu.cit.uy.researchcenter.features.auth.model.User;
+import edu.cit.uy.researchcenter.features.repository.model.ResearchRepository;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -53,7 +55,7 @@ public class Material {
     @Column(length = 255)
     private String publisher;
 
-    @Column(length = 10)
+    @Column(name = "\"year\"", length = 10)
     private String year;
     
     @Column(length = 50)

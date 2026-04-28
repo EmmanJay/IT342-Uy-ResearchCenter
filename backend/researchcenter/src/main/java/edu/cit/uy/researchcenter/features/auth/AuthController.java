@@ -1,6 +1,7 @@
 package edu.cit.uy.researchcenter.features.auth;
 
 import edu.cit.uy.researchcenter.features.auth.dto.*;
+import edu.cit.uy.researchcenter.shared.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

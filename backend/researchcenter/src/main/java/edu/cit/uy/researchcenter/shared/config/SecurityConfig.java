@@ -1,6 +1,6 @@
 package edu.cit.uy.researchcenter.shared.config;
 
-import edu.cit.uy.researchcenter.service.UserService;
+import edu.cit.uy.researchcenter.features.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

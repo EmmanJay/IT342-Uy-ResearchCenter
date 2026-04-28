@@ -1,6 +1,6 @@
-package edu.cit.uy.researchcenter.repository;
+package edu.cit.uy.researchcenter.features.request.repository;
 
-import edu.cit.uy.researchcenter.model.MaterialRequest;
+import edu.cit.uy.researchcenter.features.request.model.MaterialRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;

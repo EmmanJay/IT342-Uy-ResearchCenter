@@ -1,6 +1,6 @@
-package edu.cit.uy.researchcenter.repository;
+package edu.cit.uy.researchcenter.features.repository.repository;
 
-import edu.cit.uy.researchcenter.model.ResearchRepository;
+import edu.cit.uy.researchcenter.features.repository.model.ResearchRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 

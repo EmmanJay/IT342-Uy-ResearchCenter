@@ -1,4 +1,4 @@
-package edu.cit.uy.researchcenter.dto;
+package edu.cit.uy.researchcenter.features.request.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -1,7 +1,10 @@
-package edu.cit.uy.researchcenter.model;
+package edu.cit.uy.researchcenter.features.request.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import edu.cit.uy.researchcenter.features.auth.model.User;
+import edu.cit.uy.researchcenter.features.material.model.Material;
+import edu.cit.uy.researchcenter.features.repository.model.ResearchRepository;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;

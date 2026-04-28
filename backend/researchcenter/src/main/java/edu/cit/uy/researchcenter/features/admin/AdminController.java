@@ -1,8 +1,10 @@
-package edu.cit.uy.researchcenter.controller;
+package edu.cit.uy.researchcenter.features.admin;
 
-import edu.cit.uy.researchcenter.model.User;
-import edu.cit.uy.researchcenter.repository.*;
-import edu.cit.uy.researchcenter.service.MaterialService;
+import edu.cit.uy.researchcenter.features.auth.model.User;
+import edu.cit.uy.researchcenter.features.auth.repository.*;
+import edu.cit.uy.researchcenter.features.material.MaterialService;
+import edu.cit.uy.researchcenter.features.repository.repository.ResearchRepositoryRepo;
+import edu.cit.uy.researchcenter.features.material.repository.MaterialRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

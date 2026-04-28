@@ -26,22 +26,25 @@ class MaterialControllerTest {
     static String token;
     static Long repoId;
     static Long materialId;
+    static boolean setupDone = false;
 
-    @BeforeAll
-    static void setup(@Autowired MockMvc mvc, @Autowired ObjectMapper mapper) throws Exception {
+    @BeforeEach
+    void setup() throws Exception {
+        if (setupDone) return;
         String email = "mattest_" + System.currentTimeMillis() + "@test.com";
         var reg = Map.of("email", email, "password", "Test1234!", "firstname", "Mat", "lastname", "Tester");
-        MvcResult r1 = mvc.perform(post("/api/v1/auth/register")
+        MvcResult r1 = mockMvc.perform(post("/api/v1/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(reg))).andReturn();
-        token = mapper.readTree(r1.getResponse().getContentAsString()).at("/data/accessToken").asText();
+                .content(objectMapper.writeValueAsString(reg))).andReturn();
+        token = objectMapper.readTree(r1.getResponse().getContentAsString()).at("/data/accessToken").asText();
 
         var repo = Map.of("name", "Mat Test Repo", "description", "for material tests");
-        MvcResult r2 = mvc.perform(post("/api/v1/repositories")
+        MvcResult r2 = mockMvc.perform(post("/api/v1/repositories")
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(repo))).andReturn();
-        repoId = mapper.readTree(r2.getResponse().getContentAsString()).at("/data/id").asLong();
+                .content(objectMapper.writeValueAsString(repo))).andReturn();
+        repoId = objectMapper.readTree(r2.getResponse().getContentAsString()).at("/data/id").asLong();
+        setupDone = true;
     }
 
     @Test @Order(1)

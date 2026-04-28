@@ -1,8 +1,11 @@
-package edu.cit.uy.researchcenter.service;
+package edu.cit.uy.researchcenter.features.repository;
 
-import edu.cit.uy.researchcenter.dto.*;
-import edu.cit.uy.researchcenter.model.*;
-import edu.cit.uy.researchcenter.repository.*;
+import edu.cit.uy.researchcenter.features.repository.dto.*;
+import edu.cit.uy.researchcenter.features.repository.model.*;
+import edu.cit.uy.researchcenter.features.repository.repository.*;
+import edu.cit.uy.researchcenter.features.auth.model.User;
+import edu.cit.uy.researchcenter.features.auth.repository.UserRepository;
+import edu.cit.uy.researchcenter.features.material.repository.MaterialRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

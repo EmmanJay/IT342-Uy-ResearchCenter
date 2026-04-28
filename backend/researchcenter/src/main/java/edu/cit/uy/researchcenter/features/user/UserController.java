@@ -1,9 +1,8 @@
-package edu.cit.uy.researchcenter.controller;
+package edu.cit.uy.researchcenter.features.user;
 
-import edu.cit.uy.researchcenter.dto.ApiResponse;
-import edu.cit.uy.researchcenter.dto.AuthResponse;
-import edu.cit.uy.researchcenter.model.User;
-import edu.cit.uy.researchcenter.service.UserService;
+import edu.cit.uy.researchcenter.shared.response.ApiResponse;
+import edu.cit.uy.researchcenter.features.auth.dto.AuthResponse;
+import edu.cit.uy.researchcenter.features.auth.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -11,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import edu.cit.uy.researchcenter.repository.UserRepository;
+import edu.cit.uy.researchcenter.features.auth.repository.UserRepository;
 
 import java.util.Optional;
 

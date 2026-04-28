@@ -1,6 +1,7 @@
 package edu.cit.uy.researchcenter.shared.exception;
 
 import edu.cit.uy.researchcenter.shared.response.ApiResponse;
+import edu.cit.uy.researchcenter.features.auth.AuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

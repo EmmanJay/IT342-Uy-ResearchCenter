@@ -1,7 +1,8 @@
-package edu.cit.uy.researchcenter.model;
+package edu.cit.uy.researchcenter.features.material.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import edu.cit.uy.researchcenter.features.auth.model.User;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
