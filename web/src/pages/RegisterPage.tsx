@@ -2,7 +2,8 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
-// import { SessionManager } from '../auth/sessionManager';
+import { GoogleLogin } from '@react-oauth/google';
+import { SessionManager } from '../auth/sessionManager';
 import { authApi } from '../api/authApi';
 
 const RegisterPage = () => {
@@ -47,6 +48,22 @@ const RegisterPage = () => {
       } else {
         setError(errorMsg || 'Something went wrong. Please try again.');
       }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    if (!credentialResponse.credential) return;
+    setIsLoading(true);
+    setError('');
+    try {
+      const authData = await authApi.googleAuth(credentialResponse.credential);
+      SessionManager.saveAuthData(authData);
+      navigate('/dashboard');
+    } catch (err: any) {
+      const errorMsg = err.message || 'Google sign-up failed. Please try again.';
+      setError(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -206,11 +223,17 @@ const RegisterPage = () => {
             </div>
           </div>
 
-          {/* Google
-          <button type="button" className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 py-2.5 px-4 rounded-md text-sm font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 min-h-[44px] cursor-pointer">
-            Sign up with Google
-          </button>
-          */}
+          {/* Google Sign-Up */}
+          <div className="w-full flex justify-center mt-4">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError('Google sign-up failed.')}
+              theme="outline"
+              size="large"
+              width="100%"
+              text="signup_with"
+            />
+          </div>
 
           <p className="text-center text-sm text-gray-600 mt-4">
             Already have an account?{' '}
