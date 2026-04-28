@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
 import { SessionManager } from '../auth/sessionManager';
 import { authApi } from '../api/authApi';
 
@@ -41,6 +42,22 @@ const LoginPage = () => {
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
     if (error) setError('');
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    if (!credentialResponse.credential) return;
+    setIsLoading(true);
+    setError('');
+    try {
+      const authData = await authApi.googleAuth(credentialResponse.credential);
+      SessionManager.saveAuthData(authData);
+      navigate('/dashboard');
+    } catch (err: any) {
+      const errorMsg = err.message || 'Google sign-in failed. Please try again.';
+      setError(errorMsg);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -133,11 +150,17 @@ const LoginPage = () => {
             </div>
           </div>
 
-          {/* Google - placeholder for full implementation
-          <button type="button" className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 py-2.5 px-4 rounded-md text-sm font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 min-h-[44px] cursor-pointer">
-            Sign in with Google
-          </button>
-          */}
+          {/* Google Sign-In */}
+          <div className="w-full flex justify-center mt-4">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError('Google sign-in failed.')}
+              theme="outline"
+              size="large"
+              width="100%"
+              text="signin_with"
+            />
+          </div>
 
           <p className="text-center text-sm text-gray-600 mt-4">
             Don't have an account?{' '}

@@ -59,6 +59,34 @@ export const authApi = {
     }
   },
 
+  googleAuth: async (idToken: string): Promise<AuthData> => {
+    try {
+      const response = await axiosClient.post('/auth/google', { idToken });
+      const authResponse = response.data.data;
+
+      if (!authResponse?.id || !authResponse?.accessToken) {
+        throw new Error('Invalid auth response: missing id or accessToken');
+      }
+
+      return {
+        user: {
+          id: authResponse.id,
+          email: authResponse.email,
+          firstname: authResponse.firstname,
+          lastname: authResponse.lastname,
+          role: authResponse.role,
+        },
+        token: authResponse.accessToken,
+        refreshToken: authResponse.refreshToken,
+      };
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new Error('Google sign-in failed. Invalid token.');
+      }
+      throw error;
+    }
+  },
+
   logout: async (): Promise<void> => {
     await axiosClient.post('/auth/logout');
   },
