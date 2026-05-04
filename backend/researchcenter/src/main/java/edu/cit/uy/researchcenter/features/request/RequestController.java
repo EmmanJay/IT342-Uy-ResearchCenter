@@ -31,6 +31,12 @@ public class RequestController {
         return ResponseEntity.status(HttpStatus.CREATED).body(wrap(true, req, null));
     }
 
+    @GetMapping
+    public ResponseEntity<?> getAll(@AuthenticationPrincipal UserDetails principal) {
+        User user = userService.findByEmail(principal.getUsername());
+        return ResponseEntity.ok(wrap(true, requestService.getAll(user.getId()), null));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@AuthenticationPrincipal UserDetails principal,
                                      @PathVariable Long id) {
@@ -44,6 +50,14 @@ public class RequestController {
                                      @Valid @RequestBody FulfillRequestDto dto) {
         User user = userService.findByEmail(principal.getUsername());
         return ResponseEntity.ok(wrap(true, requestService.fulfill(id, user.getId(), dto), null));
+    }
+
+    @PostMapping("/{id}/close")
+    public ResponseEntity<?> close(@AuthenticationPrincipal UserDetails principal,
+                                   @PathVariable Long id,
+                                   @RequestBody Map<String, String> body) {
+        User user = userService.findByEmail(principal.getUsername());
+        return ResponseEntity.ok(wrap(true, requestService.close(id, user.getId(), body.get("note")), null));
     }
 
     @DeleteMapping("/{id}")

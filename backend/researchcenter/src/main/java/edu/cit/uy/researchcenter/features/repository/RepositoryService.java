@@ -78,6 +78,10 @@ public class RepositoryService {
         ResearchRepository repo = repositoryRepo.findById(repoId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Repository not found"));
         assertOwner(repo, callerId);
+        
+        // Delete all repository members first to avoid foreign key constraint violations
+        memberRepo.deleteByRepositoryId(repoId);
+        
         repositoryRepo.delete(repo);
     }
 

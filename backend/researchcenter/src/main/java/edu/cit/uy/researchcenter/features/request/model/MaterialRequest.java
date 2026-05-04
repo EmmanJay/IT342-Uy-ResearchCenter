@@ -50,6 +50,9 @@ public class MaterialRequest {
     @Column(name = "fulfilled_at")
     private Instant fulfilledAt;
 
+    @Column(name = "closed_at")
+    private Instant closedAt;
+
     @Column(name = "created_at")
     private Instant createdAt;
 

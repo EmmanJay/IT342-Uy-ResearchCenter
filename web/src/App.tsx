@@ -1,13 +1,13 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import DashboardPage from './pages/DashboardPage';
-import RepositoryDetailPage from './pages/RepositoryDetailPage';
-import AddMaterialPage from './pages/AddMaterialPage';
-import EditMaterialPage from './pages/EditMaterialPage';
-import NewRequestPage from './pages/NewRequestPage';
-import ProtectedRoute from './components/ProtectedRoute';
+import LoginPage from './features/auth/LoginPage';
+import RegisterPage from './features/auth/RegisterPage';
+import DashboardPage from './features/dashboard/DashboardPage';
+import RepositoryDetailPage from './features/repository/RepositoryDetailPage';
+import AddMaterialPage from './features/material/AddMaterialPage';
+import EditMaterialPage from './features/material/EditMaterialPage';
+import NewRequestPage from './features/request/NewRequestPage';
+import ProtectedRoute from './shared/components/ProtectedRoute';
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 

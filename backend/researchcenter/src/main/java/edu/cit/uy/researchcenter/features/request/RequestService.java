@@ -60,6 +60,13 @@ public class RequestService {
                 .collect(Collectors.toList());
     }
 
+    // ── Get all user requests ─────────────────────────────────────────────
+    public List<RequestResponse> getAll(Long userId) {
+        return requestRepo.findByRequesterId(userId).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
     // ── Get by ID ─────────────────────────────────────────────────────────
     public RequestResponse getById(Long id, Long callerId) {
         MaterialRequest req = requestRepo.findById(id)
@@ -99,6 +106,31 @@ public class RequestService {
         req.setFulfilledAt(Instant.now());
         req.setMaterial(material);
         req.setFulfilledBy(fulfiller);
+
+        return toResponse(requestRepo.save(req));
+    }
+
+    // ── Close request ─────────────────────────────────────────────────────
+    @Transactional
+    public RequestResponse close(Long requestId, Long callerId, String note) {
+        MaterialRequest req = requestRepo.findById(requestId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Request not found"));
+
+        if ("CLOSED".equals(req.getStatus())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Request is already closed");
+        }
+
+        if (!"OPEN".equals(req.getStatus())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Only OPEN requests can be closed");
+        }
+
+        // Only requester can close
+        if (!req.getRequester().getId().equals(callerId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the requester can close this request");
+        }
+
+        req.setStatus("CLOSED");
+        req.setClosedAt(Instant.now());
 
         return toResponse(requestRepo.save(req));
     }

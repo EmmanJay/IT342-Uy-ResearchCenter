@@ -21,4 +21,6 @@ public interface RepositoryMemberRepo extends JpaRepository<RepositoryMember, Lo
     List<RepositoryMember> findAllByUserId(Long userId);
 
     void deleteByRepositoryIdAndUserId(Long repositoryId, Long userId);
+
+    void deleteByRepositoryId(Long repositoryId);
 }
