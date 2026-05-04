@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: researchcenter-test
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+  h2:
+    console:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+jwt:
+  secret: aW1wbGVtZW50YXRpb24taW1wbGVtZW50YXRpb24taW1wbGVtZW50YXRpb24taW1wbGVtZW50YXRpb24taW1wbGVtZW50YXRpb24taW1wbGVtZW50YXRpb24=
+  expiration: 3600000
+  refresh-expiration: 604800000
+
+supabase:
+  url: https://uddvltwfumyovjdhywfc.supabase.co
+  service-key: test-service-key
+  bucket: research-materials
+
+google:
+  books:
+    api-key: test-api-key
+  client-id: test-client-id
