@@ -3,6 +3,7 @@ package com.example.researchcenter.features.profile
 import android.app.Activity
 import android.os.Bundle
 import android.widget.TextView
+import com.example.researchcenter.R
 import com.example.researchcenter.shared.auth.SessionManager
 
 class ProfileActivity : Activity() {

@@ -5,6 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import com.example.researchcenter.R
+import com.example.researchcenter.features.dashboard.DashboardActivity
 import com.example.researchcenter.shared.auth.SessionManager
 
 class SplashActivity : Activity() {

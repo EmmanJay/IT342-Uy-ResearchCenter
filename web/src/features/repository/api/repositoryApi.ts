@@ -1,5 +1,5 @@
-import { axiosClient } from './axiosClient';
-import type { Repository, RepositoryDetail, RepositoryMember, CreateRepositoryRequest, InviteMemberRequest } from '../types';
+import { axiosClient } from '../../../shared/api/axiosClient';
+import type { Repository, RepositoryDetail, RepositoryMember, CreateRepositoryRequest, InviteMemberRequest } from '../../../shared/types';
 
 export const repositoryApi = {
   getAll: async (): Promise<Repository[]> => {

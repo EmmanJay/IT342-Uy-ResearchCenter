@@ -1,5 +1,5 @@
-import { axiosClient } from './axiosClient';
-import type { MaterialRequest, CreateRequestDto, FulfillRequestDto } from '../types';
+import { axiosClient } from '../../../shared/api/axiosClient';
+import type { MaterialRequest, CreateRequestDto, FulfillRequestDto } from '../../../shared/types';
 
 export const requestApi = {
   getById: async (id: string): Promise<MaterialRequest> => {

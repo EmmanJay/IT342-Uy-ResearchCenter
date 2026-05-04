@@ -1,5 +1,5 @@
-import { axiosClient } from './axiosClient';
-import type { AuthData, User } from '../types';
+import { axiosClient } from '../../../shared/api/axiosClient';
+import type { AuthData, User } from '../../../shared/types';
 
 export interface LoginRequest {
   email: string;

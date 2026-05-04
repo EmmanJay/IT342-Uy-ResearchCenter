@@ -1,4 +1,4 @@
-import type { GoogleBookMetadata } from '../types';
+import type { GoogleBookMetadata } from '../../../shared/types';
 
 const GOOGLE_BOOKS_API_KEY = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY || '';
 const GOOGLE_BOOKS_API_URL = 'https://www.googleapis.com/books/v1/volumes';
