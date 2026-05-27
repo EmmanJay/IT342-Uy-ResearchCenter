@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/surface_white"
+    android:padding="@dimen/space_4">
+
+    <!-- Instead of an inline text input like React (which might break existing Kotlin logic for MemberSearchDialog), 
+         we keep the button but style it well. -->
+    <LinearLayout
+        android:id="@+id/ll_invite_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_dialog_rounded"
+        android:backgroundTint="@color/background_gray"
+        android:padding="@dimen/space_4"
+        android:layout_marginBottom="@dimen/space_6"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Invite Member"
+            android:textStyle="bold"
+            android:textSize="@dimen/text_sm"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="@dimen/space_1" />
+            
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search for a user by email to invite them to this repository."
+            android:textSize="@dimen/text_xs"
+            android:textColor="@color/text_secondary"
+            android:layout_marginBottom="@dimen/space_3" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_invite_member"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search &amp; Invite"
+            android:textSize="@dimen/text_sm"
+            app:cornerRadius="@dimen/radius_md"
+            app:backgroundTint="@color/primary_green" />
+    </LinearLayout>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/ll_invite_section"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_members"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="80dp"/>
+            
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_empty_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/ll_invite_section"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/tv_empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No members found."
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_base" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

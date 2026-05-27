@@ -2,6 +2,7 @@ package edu.cit.uy.researchcenter.features.material;
 
 import edu.cit.uy.researchcenter.features.material.dto.*;
 import edu.cit.uy.researchcenter.features.material.model.*;
+import edu.cit.uy.researchcenter.features.material.model.MaterialNote;
 import edu.cit.uy.researchcenter.features.material.repository.*;
 import edu.cit.uy.researchcenter.features.auth.model.User;
 import edu.cit.uy.researchcenter.features.auth.repository.UserRepository;
@@ -34,6 +35,8 @@ public class MaterialService {
     private final SupabaseStorageService supabaseStorageService;
     private final MaterialRequestRepo requestRepo;
     private final BookmarkRepo bookmarkRepo;
+    private final MaterialNoteRepo materialNoteRepo;
+    private final edu.cit.uy.researchcenter.features.activity.service.ActivityService activityService;
 
     // ── Add material ──────────────────────────────────────────────────────
     @Transactional
@@ -74,6 +77,8 @@ public class MaterialService {
                     .collect(Collectors.toList());
             tagRepo.saveAll(tags);
         }
+
+        activityService.logActivity(uploader, "uploaded a material", "MATERIAL", material.getId(), material.getTitle(), repo, null, null);
 
         return toResponse(materialRepo.findById(material.getId()).orElseThrow(), uploader.getId());
     }
@@ -137,6 +142,15 @@ public class MaterialService {
     // ── Delete ────────────────────────────────────────────────────────────
     @Transactional
     public void delete(Long id, Long callerId) {
+        deleteInternal(id, callerId, false);
+    }
+
+    @Transactional
+    public void deleteAsAdmin(Long id) {
+        deleteInternal(id, null, true);
+    }
+
+    private void deleteInternal(Long id, Long callerId, boolean adminOverride) {
         try {
             logger.info("Delete started for material id=" + id + ", caller id=" + callerId);
 
@@ -144,11 +158,11 @@ public class MaterialService {
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Material not found"));
             logger.info("Material found: " + mat.getTitle());
 
-            boolean isOwner = mat.getRepository().getOwner().getId().equals(callerId);
-            boolean isUploader = mat.getUploader().getId().equals(callerId);
+            boolean isOwner = callerId != null && mat.getRepository().getOwner().getId().equals(callerId);
+            boolean isUploader = callerId != null && mat.getUploader().getId().equals(callerId);
             logger.info("Authorization check: isOwner=" + isOwner + ", isUploader=" + isUploader);
 
-            if (!isOwner && !isUploader) {
+            if (!adminOverride && !isOwner && !isUploader) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the uploader or repository owner can delete this material");
             }
 
@@ -173,6 +187,10 @@ public class MaterialService {
             logger.info("Deleting MaterialUserStatus records for material id=" + id);
             userStatusRepo.deleteByMaterialId(id);
             logger.info("MaterialUserStatus records deleted");
+
+            logger.info("Deleting MaterialNote records for material id=" + id);
+            materialNoteRepo.deleteByMaterialId(id);
+            logger.info("MaterialNote records deleted");
 
             // 3. Detach MaterialRequest records that reference this material
             logger.info("Finding and detaching MaterialRequest records for material id=" + id);
@@ -225,6 +243,7 @@ public class MaterialService {
         if (callerId != null) {
             userStatusRepo.findByMaterialIdAndUserId(m.getId(), callerId)
                 .ifPresent(s -> builder.myStatus(s.getStatus()));
+            builder.bookmarked(bookmarkRepo.existsByUserIdAndMaterialId(callerId, m.getId()));
         }
 
         return builder.build();
@@ -256,4 +275,50 @@ public class MaterialService {
                 throw e;
             }
         }
+
+    @Transactional
+    public boolean toggleBookmark(Long materialId, Long userId) {
+        Material mat = materialRepo.findById(materialId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Material not found"));
+        if (!memberRepo.existsByRepositoryIdAndUserId(mat.getRepository().getId(), userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not a repository member");
+        }
+        if (bookmarkRepo.existsByUserIdAndMaterialId(userId, materialId)) {
+            bookmarkRepo.deleteByUserIdAndMaterialId(userId, materialId);
+            return false;
+        } else {
+            User u = new User();
+            u.setId(userId);
+            Bookmark bookmark = Bookmark.builder().user(u).material(mat).build();
+            bookmarkRepo.save(bookmark);
+            return true;
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<MaterialResponse> getBookmarkedMaterials(Long userId) {
+        return bookmarkRepo.findByUserId(userId).stream()
+                .map(b -> toResponse(b.getMaterial(), userId))
+                .collect(Collectors.toList());
+    }
+
+    public String getMaterialNote(Long materialId, Long userId) {
+        return materialNoteRepo.findByUserIdAndMaterialId(userId, materialId)
+                .map(MaterialNote::getContent)
+                .orElse("");
+    }
+
+    @Transactional
+    public String saveMaterialNote(Long materialId, Long userId, String content) {
+        Material mat = materialRepo.findById(materialId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Material not found"));
+        if (!memberRepo.existsByRepositoryIdAndUserId(mat.getRepository().getId(), userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not a repository member");
+        }
+        MaterialNote note = materialNoteRepo.findByUserIdAndMaterialId(userId, materialId)
+                .orElse(MaterialNote.builder().userId(userId).materialId(materialId).build());
+        note.setContent(content);
+        materialNoteRepo.save(note);
+        return content;
+    }
 }

@@ -1,16 +1,21 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation, useSearchParams } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
 import { SessionManager } from '../../shared/auth/sessionManager';
 import { authApi } from './api/authApi';
+import AppLogo from '../../shared/components/AppLogo';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const [firstname, setFirstname] = useState('');
   const [lastname, setLastname] = useState('');
-  const [email, setEmail] = useState('');
+  const inviteToken = searchParams.get('invite');
+  const returnTo = (location.state as any)?.returnTo || (inviteToken ? `/invite/accept?token=${encodeURIComponent(inviteToken)}` : undefined);
+  const [email, setEmail] = useState((location.state as any)?.email || '');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -38,9 +43,13 @@ const RegisterPage = () => {
     setIsLoading(true);
 
     try {
-      await authApi.register({ firstname, lastname, email, password });
-      // After register, redirect to login so user confirms email/login
-      navigate('/login', { state: { email } });
+      const authData = await authApi.register({ firstname, lastname, email, password });
+      if (returnTo) {
+        SessionManager.saveAuthData(authData);
+        navigate(returnTo, { replace: true });
+      } else {
+        navigate('/login', { state: { email } });
+      }
     } catch (err: any) {
       const errorMsg = err.response?.data?.message;
       if (errorMsg?.includes('already exists') || errorMsg?.includes('email')) {
@@ -60,11 +69,10 @@ const RegisterPage = () => {
     try {
       const authData = await authApi.googleAuth(credentialResponse.credential);
       SessionManager.saveAuthData(authData);
-      navigate('/dashboard');
+      navigate(returnTo || '/dashboard');
     } catch (err: any) {
       const errorMsg = err.message || 'Google sign-up failed. Please try again.';
       setError(errorMsg);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -74,7 +82,7 @@ const RegisterPage = () => {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4 flex justify-center">
         <div className="w-full flex justify-center">
-          <span className="text-lg font-semibold text-green-600">ResearchCenter</span>
+          <AppLogo variant="full" imageClassName="h-16 w-auto" />
         </div>
       </header>
 
@@ -237,7 +245,7 @@ const RegisterPage = () => {
 
           <p className="text-center text-sm text-gray-600 mt-4">
             Already have an account?{' '}
-            <Link to="/login" className="text-green-600 font-medium hover:underline cursor-pointer">
+            <Link to="/login" state={{ returnTo, email }} className="text-green-600 font-medium hover:underline cursor-pointer">
               Sign In
             </Link>
           </p>

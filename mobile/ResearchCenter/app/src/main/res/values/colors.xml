@@ -1,13 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary_green">#2E7D32</color>
-    <color name="primary_green_dark">#1B5E20</color>
-    <color name="secondary_green">#4CAF50</color>
-    <color name="error_red">#D32F2F</color>
-    <color name="background">#F5F5F5</color>
-    <color name="surface">#FFFFFF</color>
-    <color name="text_primary">#212121</color>
-    <color name="text_secondary">#757575</color>
-    <color name="border">#E0E0E0</color>
-    <color name="light_green_bg">#E8F5E9</color>
+    <color name="primary_green">#16a34a</color>       <!-- Tailwind green-600 -->
+    <color name="primary_green_dark">#15803d</color>   <!-- Tailwind green-700 -->
+    <color name="secondary_green">#22c55e</color>      <!-- Tailwind green-500 -->
+    <color name="success_green">#166534</color>        <!-- Tailwind green-800 -->
+    <color name="green_50">#f0fdf4</color>
+    <color name="green_100">#dcfce7</color>
+    <color name="green_200">#bbf7d0</color>
+    <color name="teal_badge">#4DB6AC</color>           <!-- Type badges, FULFILLED badge, selected chips -->
+    <color name="red_50">#fef2f2</color>
+    <color name="red_200">#fecaca</color>
+    <color name="error_red">#dc2626</color>            <!-- Tailwind red-600 -->
+    <color name="warning_amber">#d97706</color>        <!-- Tailwind amber-600 -->
+    <color name="status_in_progress">#f59e0b</color>   <!-- Tailwind amber-500 -->
+    <color name="status_completed">#22c55e</color>     <!-- Tailwind green-500 -->
+    <color name="status_to_read">#94a3b8</color>       <!-- Tailwind slate-400 -->
+    <color name="tag_chip_bg">#e2e8f0</color>          <!-- Tailwind slate-200 -->
+    <color name="tag_chip_text">#334155</color>        <!-- Tailwind slate-700 -->
+    <color name="surface_white">#FFFFFF</color>
+    <color name="background_gray">#f8fafc</color>      <!-- Tailwind slate-50 -->
+    <color name="text_primary">#0f172a</color>         <!-- Tailwind slate-900 -->
+    <color name="text_secondary">#475569</color>       <!-- Tailwind slate-600 -->
+    <color name="text_hint">#94a3b8</color>            <!-- Tailwind slate-400 -->
+    <color name="divider">#e2e8f0</color>              <!-- Tailwind slate-200 -->
+    <color name="border_color">#e5e7eb</color>         <!-- Tailwind gray-200 -->
+    <color name="status_cancelled">#dc2626</color>     <!-- Tailwind red-600 -->
+    <color name="card_shadow">#1A000000</color>
 </resources>

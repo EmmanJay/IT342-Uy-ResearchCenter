@@ -24,6 +24,7 @@ export const authApi = {
         firstname: authResponse.firstname,
         lastname: authResponse.lastname,
         role: authResponse.role,
+        profilePicture: authResponse.profilePicture,
       },
       token: authResponse.accessToken,
       refreshToken: authResponse.refreshToken,
@@ -46,14 +47,22 @@ export const authApi = {
           firstname: authResponse.firstname,
           lastname: authResponse.lastname,
           role: authResponse.role,
+          profilePicture: authResponse.profilePicture,
         },
         token: authResponse.accessToken,
         refreshToken: authResponse.refreshToken,
       };
     } catch (error: any) {
       // Convert generic error to user-friendly message
+      const message = (error.response?.data?.error?.message || '').toString().toLowerCase();
+      if (error.response?.data?.error?.code === 'AUTH-003' || message.includes('suspend')) {
+        throw new Error('Your account is suspended. Please contact administrator');
+      }
       if (error.response?.status === 401) {
         throw new Error('Invalid email or password');
+      }
+      if (error.response?.status === 403) {
+        throw new Error('Your account is suspended. Please contact administrator');
       }
       throw error;
     }
@@ -75,13 +84,21 @@ export const authApi = {
           firstname: authResponse.firstname,
           lastname: authResponse.lastname,
           role: authResponse.role,
+          profilePicture: authResponse.profilePicture,
         },
         token: authResponse.accessToken,
         refreshToken: authResponse.refreshToken,
       };
     } catch (error: any) {
+      const message = (error.response?.data?.error?.message || '').toString().toLowerCase();
+      if (error.response?.data?.error?.code === 'AUTH-003' || message.includes('suspend')) {
+        throw new Error('Your account is suspended. Please contact administrator');
+      }
       if (error.response?.status === 401) {
-        throw new Error('Google sign-in failed. Invalid token.');
+        throw new Error(error.response?.data?.error?.message || error.response?.data?.message || 'Google sign-in failed. Please verify your account or try again.');
+      }
+      if (error.response?.status === 403) {
+        throw new Error('Your account is suspended. Please contact administrator');
       }
       throw error;
     }
@@ -93,6 +110,11 @@ export const authApi = {
 
   getMe: async (): Promise<User> => {
     const response = await axiosClient.get('/users/me');
+    return response.data.data;
+  },
+
+  updateProfile: async (data: { firstname: string; lastname: string; profilePicture?: string }): Promise<User> => {
+    const response = await axiosClient.put('/users/me', data);
     return response.data.data;
   },
 };

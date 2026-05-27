@@ -35,6 +35,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthService.InvalidCredentialsException.class)
     public ResponseEntity<ApiResponse<Object>> handleInvalidCredentials(AuthService.InvalidCredentialsException ex) {
+        if (ex.getMessage() != null && ex.getMessage().toLowerCase().contains("suspend")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("AUTH-003", "Your account is suspended. Please contact administrator"));
+        }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponse.error("AUTH-001", ex.getMessage()));
     }

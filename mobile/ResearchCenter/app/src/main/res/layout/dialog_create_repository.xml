@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/surface_white"
+    android:padding="@dimen/space_6">
+
+    <TextView 
+        android:layout_width="match_parent" 
+        android:layout_height="wrap_content"
+        android:text="Name *" 
+        android:textColor="@color/text_primary" 
+        android:textStyle="bold"
+        android:textSize="@dimen/text_sm" 
+        android:layout_marginBottom="@dimen/space_1" />
+        
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/et_repo_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingHorizontal="12dp"
+        android:background="@drawable/bg_dialog_rounded"
+        android:hint="Repository name"
+        android:textSize="@dimen/text_sm"
+        android:layout_marginBottom="@dimen/space_4" />
+
+    <TextView 
+        android:layout_width="match_parent" 
+        android:layout_height="wrap_content"
+        android:text="Description" 
+        android:textColor="@color/text_primary" 
+        android:textStyle="bold"
+        android:textSize="@dimen/text_sm" 
+        android:layout_marginBottom="@dimen/space_1" />
+        
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/et_repo_desc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingHorizontal="12dp"
+        android:background="@drawable/bg_dialog_rounded"
+        android:hint="What is this repository for?"
+        android:textSize="@dimen/text_sm"
+        android:minLines="3"
+        android:gravity="top"
+        android:layout_marginBottom="@dimen/space_6" />
+
+</LinearLayout>

@@ -3,23 +3,29 @@ package com.example.researchcenter.features.auth
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.text.method.PasswordTransformationMethod
 import android.view.View
 import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import com.example.researchcenter.R
 import com.example.researchcenter.features.dashboard.DashboardActivity
-import com.example.researchcenter.shared.api.ApiClient
-import com.example.researchcenter.shared.auth.SessionManager
-import com.example.researchcenter.shared.model.LoginResponse
+import com.example.researchcenter.shared.api.RetrofitClient
+import com.example.researchcenter.shared.api.AuthApi
+import com.example.researchcenter.shared.auth.AuthSessionHelper
+import com.example.researchcenter.shared.model.ApiResponse
+import com.example.researchcenter.shared.model.AuthResponse
+import com.example.researchcenter.shared.model.GoogleAuthRequest
+import com.example.researchcenter.shared.model.LoginRequest
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 
 class LoginActivity : Activity() {
 
@@ -29,13 +35,12 @@ class LoginActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        val etEmail = findViewById<EditText>(R.id.et_email)
-        val etPassword = findViewById<EditText>(R.id.et_password)
+        val tilEmail = findViewById<TextInputLayout>(R.id.til_email)
+        val tilPassword = findViewById<TextInputLayout>(R.id.til_password)
+        val etEmail = findViewById<TextInputEditText>(R.id.et_email)
+        val etPassword = findViewById<TextInputEditText>(R.id.et_password)
         val btnLogin = findViewById<Button>(R.id.btn_login)
-        val tvError = findViewById<TextView>(R.id.tv_error)
         val tvGoRegister = findViewById<TextView>(R.id.tv_go_register)
-        val ivToggle = findViewById<ImageView>(R.id.iv_toggle_password)
-        val progressLogin = findViewById<ProgressBar>(R.id.progress_login)
         val btnGoogle = findViewById<Button>(R.id.btn_google_sign_in)
 
         intent?.getStringExtra("registered_email")?.let { etEmail.setText(it) }
@@ -46,58 +51,67 @@ class LoginActivity : Activity() {
             .build()
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        var isPasswordVisible = false
-        etPassword.transformationMethod = PasswordTransformationMethod.getInstance()
-        ivToggle.setOnClickListener {
-            isPasswordVisible = !isPasswordVisible
-            etPassword.transformationMethod = if (isPasswordVisible) null
-            else PasswordTransformationMethod.getInstance()
-            ivToggle.setImageResource(
-                if (isPasswordVisible) R.drawable.ic_eye_open else R.drawable.ic_eye_closed
-            )
-            etPassword.setSelection(etPassword.text.length)
-        }
-
         btnLogin.setOnClickListener {
-            tvError.visibility = View.GONE
+            tilEmail.error = null
+            tilPassword.error = null
+
             val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString().trim()
 
-            if (email.isEmpty() || password.isEmpty()) {
-                tvError.text = "Please fill in both email and password"
-                tvError.visibility = View.VISIBLE
-                return@setOnClickListener
+            var isValid = true
+
+            if (email.isEmpty()) {
+                tilEmail.error = "Email is required"
+                isValid = false
+            } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                tilEmail.error = "Invalid email format"
+                isValid = false
             }
 
-            btnLogin.isEnabled = false
-            progressLogin.visibility = View.VISIBLE
+            if (password.isEmpty()) {
+                tilPassword.error = "Password is required"
+                isValid = false
+            } else if (password.length < 8) {
+                tilPassword.error = "Password must be at least 8 characters"
+                isValid = false
+            }
 
-            ApiClient.login(email, password, object : ApiClient.ApiCallback<LoginResponse> {
-                override fun onSuccess(result: LoginResponse) {
-                    runOnUiThread {
-                        SessionManager.saveToken(this@LoginActivity, result.token)
-                        SessionManager.saveRefreshToken(this@LoginActivity, result.refreshToken)
-                        SessionManager.saveEmail(this@LoginActivity, email)
-                        startActivity(Intent(this@LoginActivity, DashboardActivity::class.java))
-                        finish()
-                        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+            if (!isValid) return@setOnClickListener
+
+            btnLogin.isEnabled = false
+            btnLogin.text = "Signing in..."
+
+            val authApi = RetrofitClient.createService<AuthApi>()
+            val request = LoginRequest(email, password)
+
+            authApi.login(request).enqueue(object : Callback<ApiResponse<AuthResponse>> {
+                override fun onResponse(
+                    call: Call<ApiResponse<AuthResponse>>,
+                    response: Response<ApiResponse<AuthResponse>>
+                ) {
+                    val wrapper = response.body()
+                    if (response.isSuccessful && wrapper?.success == true && wrapper.data != null) {
+                        runOnUiThread {
+                            AuthSessionHelper.saveAuth(this@LoginActivity, wrapper.data)
+                            startActivity(Intent(this@LoginActivity, DashboardActivity::class.java))
+                            finish()
+                            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                        }
+                    } else {
+                        val errorMsg = wrapper?.error?.code ?: "Invalid email or password."
+                        runOnUiThread {
+                            Toast.makeText(this@LoginActivity, errorMsg, Toast.LENGTH_LONG).show()
+                            btnLogin.isEnabled = true
+                            btnLogin.text = "Sign In"
+                        }
                     }
                 }
 
-                override fun onError(error: String) {
+                override fun onFailure(call: Call<ApiResponse<AuthResponse>>, t: Throwable) {
                     runOnUiThread {
-                        tvError.text = when {
-                            error == "AUTH-001" -> "Invalid email or password."
-                            error.contains("Network error") -> "Network error. Check your connection."
-                            error.contains("Parse error") -> "Response parsing error. Please try again."
-                            error.contains("Empty response") -> "No response from server."
-                            error.startsWith("Error") -> "Server error: $error"
-                            else -> error
-                        }
-                        tvError.visibility = View.VISIBLE
-                        Toast.makeText(this@LoginActivity, error, Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@LoginActivity, "Network error. Check your connection.", Toast.LENGTH_LONG).show()
                         btnLogin.isEnabled = true
-                        progressLogin.visibility = View.GONE
+                        btnLogin.text = "Sign In"
                     }
                 }
             })
@@ -120,7 +134,38 @@ class LoginActivity : Activity() {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
                 val account = task.getResult(ApiException::class.java)
-                Toast.makeText(this, "Google: ${account.email}", Toast.LENGTH_SHORT).show()
+                val idToken = account.idToken
+                if (idToken.isNullOrBlank()) {
+                    Toast.makeText(this, "Google Sign-In failed", Toast.LENGTH_SHORT).show()
+                    return
+                }
+                val btnLogin = findViewById<Button>(R.id.btn_login)
+                btnLogin.isEnabled = false
+                btnLogin.text = "Signing in..."
+                val authApi = RetrofitClient.createService<AuthApi>()
+                authApi.googleAuth(GoogleAuthRequest(idToken)).enqueue(object : Callback<ApiResponse<AuthResponse>> {
+                    override fun onResponse(call: Call<ApiResponse<AuthResponse>>, response: Response<ApiResponse<AuthResponse>>) {
+                        val wrapper = response.body()
+                        runOnUiThread {
+                            btnLogin.isEnabled = true
+                            btnLogin.text = "Sign In"
+                            if (response.isSuccessful && wrapper?.success == true && wrapper.data != null) {
+                                AuthSessionHelper.saveAuth(this@LoginActivity, wrapper.data)
+                                startActivity(Intent(this@LoginActivity, DashboardActivity::class.java))
+                                finish()
+                            } else {
+                                Toast.makeText(this@LoginActivity, "Google sign-in failed", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
+                    override fun onFailure(call: Call<ApiResponse<AuthResponse>>, t: Throwable) {
+                        runOnUiThread {
+                            btnLogin.isEnabled = true
+                            btnLogin.text = "Sign In"
+                            Toast.makeText(this@LoginActivity, "Network error", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                })
             } catch (e: ApiException) {
                 Toast.makeText(this, "Google Sign-In failed", Toast.LENGTH_SHORT).show()
             }

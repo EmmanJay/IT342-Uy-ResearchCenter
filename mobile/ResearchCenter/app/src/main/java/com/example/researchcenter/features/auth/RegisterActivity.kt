@@ -3,22 +3,30 @@ package com.example.researchcenter.features.auth
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.text.method.PasswordTransformationMethod
 import android.view.View
 import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import com.example.researchcenter.R
-import com.example.researchcenter.shared.api.ApiClient
+import com.example.researchcenter.shared.api.RetrofitClient
+import com.example.researchcenter.shared.api.AuthApi
 import com.example.researchcenter.shared.auth.SessionManager
-import com.example.researchcenter.shared.model.LoginResponse
+import com.example.researchcenter.shared.model.ApiResponse
+import com.example.researchcenter.features.dashboard.DashboardActivity
+import com.example.researchcenter.shared.auth.AuthSessionHelper
+import com.example.researchcenter.shared.model.AuthResponse
+import com.example.researchcenter.shared.model.GoogleAuthRequest
+import com.example.researchcenter.shared.model.RegisterRequest
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 
 class RegisterActivity : Activity() {
 
@@ -28,16 +36,20 @@ class RegisterActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
-        val etFirstName = findViewById<EditText>(R.id.et_first_name)
-        val etLastName = findViewById<EditText>(R.id.et_last_name)
-        val etEmail = findViewById<EditText>(R.id.et_email)
-        val etPassword = findViewById<EditText>(R.id.et_password)
-        val etConfirmPassword = findViewById<EditText>(R.id.et_confirm_password)
+        val tilFirstName = findViewById<TextInputLayout>(R.id.til_firstname)
+        val tilLastName = findViewById<TextInputLayout>(R.id.til_lastname)
+        val tilEmail = findViewById<TextInputLayout>(R.id.til_email)
+        val tilPassword = findViewById<TextInputLayout>(R.id.til_password)
+        val tilConfirmPassword = findViewById<TextInputLayout>(R.id.til_confirm_password)
+
+        val etFirstName = findViewById<TextInputEditText>(R.id.et_firstname)
+        val etLastName = findViewById<TextInputEditText>(R.id.et_lastname)
+        val etEmail = findViewById<TextInputEditText>(R.id.et_email)
+        val etPassword = findViewById<TextInputEditText>(R.id.et_password)
+        val etConfirmPassword = findViewById<TextInputEditText>(R.id.et_confirm_password)
+        
         val btnRegister = findViewById<Button>(R.id.btn_register)
-        val tvError = findViewById<TextView>(R.id.tv_error)
         val tvGoLogin = findViewById<TextView>(R.id.tv_go_login)
-        val ivToggle = findViewById<ImageView>(R.id.iv_toggle_password)
-        val progressRegister = findViewById<ProgressBar>(R.id.progress_register)
         val btnGoogle = findViewById<Button>(R.id.btn_google_sign_up)
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -46,20 +58,12 @@ class RegisterActivity : Activity() {
             .build()
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        var isPasswordVisible = false
-        etPassword.transformationMethod = PasswordTransformationMethod.getInstance()
-        ivToggle.setOnClickListener {
-            isPasswordVisible = !isPasswordVisible
-            etPassword.transformationMethod = if (isPasswordVisible) null
-            else PasswordTransformationMethod.getInstance()
-            ivToggle.setImageResource(
-                if (isPasswordVisible) R.drawable.ic_eye_open else R.drawable.ic_eye_closed
-            )
-            etPassword.setSelection(etPassword.text.length)
-        }
-
         btnRegister.setOnClickListener {
-            tvError.visibility = View.GONE
+            tilFirstName.error = null
+            tilLastName.error = null
+            tilEmail.error = null
+            tilPassword.error = null
+            tilConfirmPassword.error = null
 
             val firstName = etFirstName.text.toString().trim()
             val lastName = etLastName.text.toString().trim()
@@ -67,72 +71,74 @@ class RegisterActivity : Activity() {
             val password = etPassword.text.toString().trim()
             val confirm = etConfirmPassword.text.toString().trim()
 
-            if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                tvError.text = "All fields are required"
-                tvError.visibility = View.VISIBLE
-                return@setOnClickListener
-            }
+            var isValid = true
 
-            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                tvError.text = "Please enter a valid email address"
-                tvError.visibility = View.VISIBLE
-                return@setOnClickListener
+            if (firstName.isEmpty()) {
+                tilFirstName.error = "Required"
+                isValid = false
             }
-
-            if (password.length < 8) {
-                tvError.text = "Password must be at least 8 characters"
-                tvError.visibility = View.VISIBLE
-                return@setOnClickListener
+            if (lastName.isEmpty()) {
+                tilLastName.error = "Required"
+                isValid = false
             }
-
+            if (email.isEmpty()) {
+                tilEmail.error = "Email is required"
+                isValid = false
+            } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                tilEmail.error = "Invalid email format"
+                isValid = false
+            }
+            if (password.isEmpty()) {
+                tilPassword.error = "Password is required"
+                isValid = false
+            } else if (password.length < 8) {
+                tilPassword.error = "Must be at least 8 characters"
+                isValid = false
+            }
             if (password != confirm) {
-                tvError.text = "Passwords do not match"
-                tvError.visibility = View.VISIBLE
-                return@setOnClickListener
+                tilConfirmPassword.error = "Passwords do not match"
+                isValid = false
             }
+
+            if (!isValid) return@setOnClickListener
 
             btnRegister.isEnabled = false
-            progressRegister.visibility = View.VISIBLE
+            btnRegister.text = "Creating Account..."
 
-            ApiClient.register(
-                email,
-                password,
-                firstName,
-                lastName,
-                object : ApiClient.ApiCallback<LoginResponse> {
-                    override fun onSuccess(result: LoginResponse) {
+            val authApi = RetrofitClient.createService<AuthApi>()
+            val request = RegisterRequest(email, password, firstName, lastName)
+
+            authApi.register(request).enqueue(object : Callback<ApiResponse<AuthResponse>> {
+                override fun onResponse(
+                    call: Call<ApiResponse<AuthResponse>>,
+                    response: Response<ApiResponse<AuthResponse>>
+                ) {
+                    val wrapper = response.body()
+                    if (response.isSuccessful && wrapper?.success == true && wrapper.data != null) {
                         runOnUiThread {
-                            SessionManager.saveToken(this@RegisterActivity, result.token)
-                            SessionManager.saveRefreshToken(this@RegisterActivity, result.refreshToken)
-                            SessionManager.saveEmail(this@RegisterActivity, email)
-                            SessionManager.saveName(this@RegisterActivity, "$firstName $lastName")
-                            val intent = Intent(this@RegisterActivity, LoginActivity::class.java)
-                            intent.putExtra("registered_email", email)
-                            startActivity(intent)
+                            AuthSessionHelper.saveAuth(this@RegisterActivity, wrapper.data)
+                            startActivity(Intent(this@RegisterActivity, DashboardActivity::class.java))
                             finish()
                             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
                         }
-                    }
-
-                    override fun onError(error: String) {
+                    } else {
+                        val errorMsg = wrapper?.error?.code ?: "An account with this email already exists."
                         runOnUiThread {
-                            // Show detailed error message
-                            tvError.text = when {
-                                error == "AUTH-002" -> "An account with this email already exists."
-                                error.contains("Network error") -> "Network error. Check your connection."
-                                error.contains("Parse error") -> "Response parsing error. Please try again."
-                                error.contains("Empty response") -> "No response from server."
-                                error.startsWith("Error") -> "Server error: $error"
-                                else -> error
-                            }
-                            tvError.visibility = View.VISIBLE
-                            Toast.makeText(this@RegisterActivity, error, Toast.LENGTH_LONG).show()
+                            Toast.makeText(this@RegisterActivity, errorMsg, Toast.LENGTH_LONG).show()
                             btnRegister.isEnabled = true
-                            progressRegister.visibility = View.GONE
+                            btnRegister.text = "Create Account"
                         }
                     }
                 }
-            )
+
+                override fun onFailure(call: Call<ApiResponse<AuthResponse>>, t: Throwable) {
+                    runOnUiThread {
+                        Toast.makeText(this@RegisterActivity, "Network error. Check your connection.", Toast.LENGTH_LONG).show()
+                        btnRegister.isEnabled = true
+                        btnRegister.text = "Create Account"
+                    }
+                }
+            })
         }
 
         btnGoogle.setOnClickListener {
@@ -152,7 +158,38 @@ class RegisterActivity : Activity() {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
                 val account = task.getResult(ApiException::class.java)
-                Toast.makeText(this, "Google: ${account.email}", Toast.LENGTH_SHORT).show()
+                val idToken = account.idToken
+                if (idToken.isNullOrBlank()) {
+                    Toast.makeText(this, "Google Sign-Up failed", Toast.LENGTH_SHORT).show()
+                    return
+                }
+                val btnRegister = findViewById<Button>(R.id.btn_register)
+                btnRegister.isEnabled = false
+                btnRegister.text = "Creating Account..."
+                val authApi = RetrofitClient.createService<AuthApi>()
+                authApi.googleAuth(GoogleAuthRequest(idToken)).enqueue(object : Callback<ApiResponse<AuthResponse>> {
+                    override fun onResponse(call: Call<ApiResponse<AuthResponse>>, response: Response<ApiResponse<AuthResponse>>) {
+                        val wrapper = response.body()
+                        runOnUiThread {
+                            btnRegister.isEnabled = true
+                            btnRegister.text = "Create Account"
+                            if (response.isSuccessful && wrapper?.success == true && wrapper.data != null) {
+                                AuthSessionHelper.saveAuth(this@RegisterActivity, wrapper.data)
+                                startActivity(Intent(this@RegisterActivity, DashboardActivity::class.java))
+                                finish()
+                            } else {
+                                Toast.makeText(this@RegisterActivity, "Google sign-up failed", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
+                    override fun onFailure(call: Call<ApiResponse<AuthResponse>>, t: Throwable) {
+                        runOnUiThread {
+                            btnRegister.isEnabled = true
+                            btnRegister.text = "Create Account"
+                            Toast.makeText(this@RegisterActivity, "Network error", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                })
             } catch (e: ApiException) {
                 Toast.makeText(this, "Google Sign-Up failed", Toast.LENGTH_SHORT).show()
             }

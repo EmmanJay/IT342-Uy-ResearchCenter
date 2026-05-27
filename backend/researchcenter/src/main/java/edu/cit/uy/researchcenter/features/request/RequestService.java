@@ -29,6 +29,7 @@ public class RequestService {
     private final RepositoryMemberRepo memberRepo;
     private final MaterialRepo materialRepo;
     private final UserRepository userRepository;
+    private final edu.cit.uy.researchcenter.features.activity.service.ActivityService activityService;
 
     // ── Create request ────────────────────────────────────────────────────
     @Transactional
@@ -47,7 +48,10 @@ public class RequestService {
                 .description(dto.getDescription())
                 .build();
 
-        return toResponse(requestRepo.save(req));
+        req = requestRepo.save(req);
+        activityService.logActivity(requester, "requested a material", "REQUEST", req.getId(), req.getTitle(), repo, null, null);
+
+        return toResponse(req);
     }
 
     // ── Get by repo ───────────────────────────────────────────────────────
@@ -107,7 +111,10 @@ public class RequestService {
         req.setMaterial(material);
         req.setFulfilledBy(fulfiller);
 
-        return toResponse(requestRepo.save(req));
+        req = requestRepo.save(req);
+        activityService.logActivity(fulfiller, "fulfilled a request", "REQUEST", req.getId(), req.getTitle(), req.getRepository(), req.getRequester().getId(), null);
+
+        return toResponse(req);
     }
 
     // ── Close request ─────────────────────────────────────────────────────

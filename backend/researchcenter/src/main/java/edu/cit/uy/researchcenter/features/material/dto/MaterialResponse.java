@@ -30,6 +30,7 @@ public class MaterialResponse {
     private List<String> tags;
     private String status;
     private String myStatus;
+    private boolean bookmarked;
     private Instant createdAt;
     private Instant updatedAt;
 }

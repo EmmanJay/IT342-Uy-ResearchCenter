@@ -39,6 +39,13 @@ public class User {
     @Column(name = "google_id", length = 255)
     private String googleId;
 
+    @Column(name = "profile_picture", length = 1024)
+    private String profilePicture;
+
+    @Column(name = "suspended")
+    @Builder.Default
+    private Boolean suspended = false;
+
     @Column(name = "created_at", updatable = false)
     private Instant createdAt;
 

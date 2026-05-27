@@ -15,13 +15,28 @@ import okhttp3.Response
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
+import com.example.researchcenter.BuildConfig
+
 object ApiClient {
 
-    private const val BASE_URL = "http://10.0.2.2:8080/api/v1"
+    const val BASE_URL = BuildConfig.BASE_URL
 
-    private val client = OkHttpClient.Builder()
+    private var tokenProvider: (() -> String?)? = null
+
+    fun init(provider: () -> String?) {
+        tokenProvider = provider
+    }
+
+    val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
+        .addInterceptor { chain ->
+            val requestBuilder = chain.request().newBuilder()
+            tokenProvider?.invoke()?.let { token ->
+                requestBuilder.addHeader("Authorization", "Bearer $token")
+            }
+            chain.proceed(requestBuilder.build())
+        }
         .build()
 
     private val gson = Gson()
@@ -180,6 +195,73 @@ object ApiClient {
                             callback.onSuccess(user)
                         } else {
                             callback.onError("Failed to get user")
+                        }
+                    } catch (e: Exception) {
+                        callback.onError("Parse error: ${e.message}")
+                    }
+                } else {
+                    callback.onError("Error ${response.code}")
+                }
+            }
+        })
+    }
+
+    fun getRepositories(callback: ApiCallback<List<com.example.researchcenter.shared.model.Repository>>) {
+        val request = Request.Builder()
+            .url("$BASE_URL/repositories")
+            .get()
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                callback.onError("Network error: ${e.message}")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                if (response.isSuccessful && responseBody != null) {
+                    try {
+                        val wrapperType = object : TypeToken<ApiResponse<List<com.example.researchcenter.shared.model.Repository>>>() {}.type
+                        val wrapper: ApiResponse<List<com.example.researchcenter.shared.model.Repository>> = gson.fromJson(responseBody, wrapperType)
+                        if (wrapper.success && wrapper.data != null) {
+                            callback.onSuccess(wrapper.data)
+                        } else {
+                            callback.onError("Failed to load repositories")
+                        }
+                    } catch (e: Exception) {
+                        callback.onError("Parse error: ${e.message}")
+                    }
+                } else {
+                    callback.onError("Error ${response.code}")
+                }
+            }
+        })
+    }
+
+    fun createRepository(name: String, description: String, callback: ApiCallback<com.example.researchcenter.shared.model.Repository>) {
+        val body = gson.toJson(mapOf("name" to name, "description" to description))
+            .toRequestBody(jsonMediaType)
+
+        val request = Request.Builder()
+            .url("$BASE_URL/repositories")
+            .post(body)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                callback.onError("Network error: ${e.message}")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                if (response.isSuccessful && responseBody != null) {
+                    try {
+                        val wrapperType = object : TypeToken<ApiResponse<com.example.researchcenter.shared.model.Repository>>() {}.type
+                        val wrapper: ApiResponse<com.example.researchcenter.shared.model.Repository> = gson.fromJson(responseBody, wrapperType)
+                        if (wrapper.success && wrapper.data != null) {
+                            callback.onSuccess(wrapper.data)
+                        } else {
+                            callback.onError("Failed to create repository")
                         }
                     } catch (e: Exception) {
                         callback.onError("Parse error: ${e.message}")

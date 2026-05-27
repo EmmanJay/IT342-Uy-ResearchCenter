@@ -22,6 +22,6 @@ class SplashActivity : Activity() {
                 startActivity(Intent(this, LoginActivity::class.java))
             }
             finish()
-        }, 1500)
+        }, 1000)
     }
 }

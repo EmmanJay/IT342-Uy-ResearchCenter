@@ -10,15 +10,29 @@ const AddMaterialPage = () => {
   const location = useLocation();
   const repoName = location.state?.repoName || 'Repository';
 
-  const handleCreate = async (payload: any) => {
+  const handleCreate = async (payload: Record<string, unknown>) => {
     try {
-      payload.repositoryId = id!;
-      await materialApi.create(payload);
+      const createdMaterial = await materialApi.create({ ...payload, repositoryId: id! } as Parameters<typeof materialApi.create>[0]);
       
-      // Always just return to materials tab
-      navigate(`/repositories/${id}`, { state: { activeTab: 'materials' } });
-    } catch (err: any) {
-      alert(err?.response?.data?.message || 'Failed to add material. Please try again.');
+      const { fulfillRequestId, isEditingReqMaterial, requestSnapshot } = location.state || {};
+
+      // Always just return to materials tab or wherever activeTab dictates
+      navigate(`/repositories/${id}`, { 
+        state: { 
+          activeTab: location.state?.activeTab || 'materials',
+          createdMaterial,
+          autoSelectRequest: fulfillRequestId ? {
+            requestId: fulfillRequestId,
+            materialId: createdMaterial.id,
+            isEditingReqMaterial: isEditingReqMaterial
+          } : undefined,
+          requestSnapshot,
+        } 
+      });
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { error?: { message?: string }; message?: string } }; message?: string };
+      alert(err.response?.data?.error?.message || err.response?.data?.message || err.message || 'Failed to add material. Please try again.');
+      throw error;
     }
   };
 

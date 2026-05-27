@@ -78,6 +78,37 @@ public class MaterialController {
         }
     }
 
+    @PostMapping("/{id}/bookmark")
+    public ResponseEntity<?> toggleBookmark(@AuthenticationPrincipal UserDetails principal,
+                                             @PathVariable Long id) {
+        User user = userService.findByEmail(principal.getUsername());
+        boolean bookmarked = materialService.toggleBookmark(id, user.getId());
+        return ResponseEntity.ok(wrap(true, Map.of("bookmarked", bookmarked), null));
+    }
+
+    @GetMapping("/bookmarked")
+    public ResponseEntity<?> getBookmarkedMaterials(@AuthenticationPrincipal UserDetails principal) {
+        User user = userService.findByEmail(principal.getUsername());
+        return ResponseEntity.ok(wrap(true, materialService.getBookmarkedMaterials(user.getId()), null));
+    }
+
+    @GetMapping("/{id}/note")
+    public ResponseEntity<?> getNote(@AuthenticationPrincipal UserDetails principal,
+                                      @PathVariable Long id) {
+        User user = userService.findByEmail(principal.getUsername());
+        String content = materialService.getMaterialNote(id, user.getId());
+        return ResponseEntity.ok(wrap(true, Map.of("content", content), null));
+    }
+
+    @PutMapping("/{id}/note")
+    public ResponseEntity<?> saveNote(@AuthenticationPrincipal UserDetails principal,
+                                       @PathVariable Long id,
+                                       @RequestBody Map<String, String> body) {
+        User user = userService.findByEmail(principal.getUsername());
+        String content = materialService.saveMaterialNote(id, user.getId(), body.get("content"));
+        return ResponseEntity.ok(wrap(true, Map.of("content", content), null));
+    }
+
     private Map<String, Object> wrap(boolean success, Object data, Object error) {
         return Map.of("success", success, "data", data != null ? data : Map.of(),
                 "error", error != null ? error : Map.of(), "timestamp", Instant.now().toString());

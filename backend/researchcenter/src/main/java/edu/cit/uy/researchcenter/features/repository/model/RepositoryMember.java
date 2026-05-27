@@ -32,6 +32,12 @@ public class RepositoryMember {
     @Column(name = "role_in_repo", length = 50)
     private String roleInRepo;   // "OWNER" | "MEMBER"
 
+    @Column(name = "status", length = 20)
+    private String status; // "PENDING" | "ACCEPTED"
+
+    @Column(name = "invite_token", unique = true, length = 64)
+    private String inviteToken;
+
     @Column(name = "joined_at")
     private Instant joinedAt;
 

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/space_4"
+    app:cardCornerRadius="@dimen/radius_lg"
+    app:cardElevation="2dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/green_100"
+    app:cardBackgroundColor="@color/surface_white"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/space_4">
+
+        <TextView
+            android:id="@+id/tv_activity_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_base"
+            android:textStyle="bold"
+            android:text="System message goes here" />
+
+        <TextView
+            android:id="@+id/tv_repository_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_sm"
+            android:layout_marginTop="4dp"
+            android:text="in repository Repository Name"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/layout_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_dialog_rounded"
+            android:backgroundTint="@color/green_50"
+            android:padding="@dimen/space_2"
+            android:layout_marginTop="@dimen/space_2"
+            android:visibility="gone">
+            
+            <TextView
+                android:id="@+id/tv_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_sm"
+                android:text="Description goes here" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_hint"
+            android:textSize="@dimen/text_xs"
+            android:layout_marginTop="@dimen/space_2"
+            android:text="2 hours ago" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

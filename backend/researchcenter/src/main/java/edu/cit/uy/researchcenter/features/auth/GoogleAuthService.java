@@ -65,6 +65,7 @@ public class GoogleAuthService {
         String firstname = (String) payload.get("given_name");
         String lastname = (String) payload.get("family_name");
         String googleId = payload.getSubject();
+        String picture = (String) payload.get("picture");
 
         if (firstname == null) firstname = email.split("@")[0];
         if (lastname == null) lastname = "";
@@ -76,8 +77,16 @@ public class GoogleAuthService {
         if (existingUser.isPresent()) {
             user = existingUser.get();
             // Update googleId if not set
+            boolean updateNeeded = false;
             if (user.getGoogleId() == null) {
                 user.setGoogleId(googleId);
+                updateNeeded = true;
+            }
+            if (user.getProfilePicture() == null && picture != null) {
+                user.setProfilePicture(picture);
+                updateNeeded = true;
+            }
+            if (updateNeeded) {
                 userRepository.save(user);
             }
         } else {
@@ -93,6 +102,7 @@ public class GoogleAuthService {
                     .googleId(googleId)
                     .password("") // no password for Google-only users
                     .role(userRole)
+                    .profilePicture(picture)
                     .createdAt(Instant.now())
                     .updatedAt(Instant.now())
                     .build();
@@ -101,6 +111,11 @@ public class GoogleAuthService {
         }
 
         // 4. Generate JWT tokens — same as email/password login
+        if (Boolean.TRUE.equals(user.getSuspended())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Your account is suspended. Please contact administrator");
+        }
+
         UserDetails userDetails = userService.loadUserByUsername(user.getEmail());
         String accessToken = jwtService.generateToken(userDetails);
         
@@ -114,6 +129,7 @@ public class GoogleAuthService {
                 .firstname(user.getFirstName())
                 .lastname(user.getLastName())
                 .role(user.getRole().getName())
+                .profilePicture(user.getProfilePicture())
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();

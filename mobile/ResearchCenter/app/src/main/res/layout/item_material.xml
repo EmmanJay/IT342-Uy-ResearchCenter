@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    android:layout_marginHorizontal="16dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/surface_white"
+    android:clickable="true"
+    android:focusable="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Bookmark & Action buttons on top right -->
+        <ImageButton
+            android:id="@+id/btn_menu"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_delete"
+            app:tint="@color/error_red"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <ImageButton
+            android:id="@+id/btn_bookmark"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/btn_star_big_off"
+            app:tint="@color/text_hint"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_menu" />
+
+        <TextView
+            android:id="@+id/tv_material_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Material Title"
+            android:textSize="@dimen/text_base"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginEnd="@dimen/space_4"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_bookmark" />
+
+        <LinearLayout
+            android:id="@+id/ll_meta_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/space_1"
+            android:gravity="center_vertical"
+            app:layout_constraintTop_toBottomOf="@id/tv_material_title"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <TextView
+                android:id="@+id/tv_material_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TO_READ"
+                android:textSize="@dimen/text_xs"
+                android:textColor="@color/warning_amber"
+                android:background="@drawable/badge_bg"
+                android:paddingHorizontal="@dimen/space_2"
+                android:paddingVertical="4dp"
+                android:layout_marginEnd="@dimen/space_2" />
+
+            <TextView
+                android:id="@+id/tv_material_meta"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="PDF • By Unknown"
+                android:textSize="@dimen/text_xs"
+                android:textColor="@color/text_secondary" />
+        </LinearLayout>
+
+        <!-- Tags Row -->
+        <!-- In Android, we usually use a FlowLayout or horizontally scrolling RecyclerView for tags, here we can simulate it with a horizontal LinearLayout or just a single text string if simplified, or a horizontal scrollview -->
+        <HorizontalScrollView
+            android:id="@+id/sv_tags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:layout_marginTop="@dimen/space_2"
+            app:layout_constraintTop_toBottomOf="@id/ll_meta_row"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <LinearLayout
+                android:id="@+id/ll_tags"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+        </HorizontalScrollView>
+
+        <TextView
+            android:id="@+id/tv_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Description goes here..."
+            android:textSize="@dimen/text_sm"
+            android:textColor="@color/text_secondary"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:layout_marginTop="@dimen/space_2"
+            app:layout_constraintTop_toBottomOf="@id/sv_tags"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/tv_description"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

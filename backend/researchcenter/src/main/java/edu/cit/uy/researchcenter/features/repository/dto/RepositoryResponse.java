@@ -33,6 +33,7 @@ public class RepositoryResponse {
         private String name;
         private String email;
         private String role;
+        private String status;
         private Instant joinedAt;
     }
 }

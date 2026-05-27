@@ -4,13 +4,20 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:background="@color/primary_green">
+    android:background="@color/surface_white">
+
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:src="@drawable/logo"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="ResearchCenter Logo" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="ResearchCenter"
-        android:textColor="@color/surface"
+        android:textColor="@color/primary_green"
         android:textSize="28sp"
         android:textStyle="bold"/>
 
@@ -18,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Collaborative Research Platform"
-        android:textColor="#B9F6CA"
+        android:textColor="@color/text_secondary"
         android:textSize="14sp"
         android:layout_marginTop="8dp"/>
 
@@ -26,6 +33,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
-        android:indeterminateTint="@color/surface"/>
+        android:indeterminateTint="@color/surface_white"/>
 
 </LinearLayout>

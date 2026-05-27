@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_gray">
+
+    <!-- AppBarLayout for header content that scrolls -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/surface_white"
+        app:elevation="0dp">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_scrollFlags="scroll|enterAlwaysCollapsed"
+            app:contentScrim="@color/surface_white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Navbar / App Bar -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="@dimen/space_6"
+                    android:orientation="horizontal"
+                    android:background="@color/surface_white">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/logo"
+                        android:layout_marginEnd="@dimen/space_2" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="ResearchCenter"
+                        android:textColor="@color/primary_green"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+                        
+                    <com.example.researchcenter.shared.ui.UserAvatarView
+                        android:id="@+id/tv_avatar"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp" />
+                </LinearLayout>
+                
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/border_color" />
+
+                <!-- Repository Details Container -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/space_6"
+                    android:layout_gravity="center_horizontal"
+                   > <!-- max-w-6xl -->
+
+                    <com.example.researchcenter.shared.ui.BreadcrumbsView
+                        android:id="@+id/breadcrumbs"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/space_4" />
+
+                    <!-- Title Row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="@dimen/space_2">
+
+                        <TextView
+                            android:id="@+id/tv_repo_name"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="30sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_leave_repo"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Leave Repository"
+                            android:textColor="@color/error_red"
+                            android:textSize="@dimen/text_sm"
+                            app:strokeColor="@color/red_200"
+                            app:backgroundTint="@color/red_50"
+                            android:visibility="gone" />
+                    </LinearLayout>
+
+                    <!-- Description -->
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/space_6">
+                        
+                        <TextView
+                            android:id="@+id/tv_repo_desc"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="@dimen/text_sm"
+                            android:maxLines="3"
+                            android:ellipsize="end" />
+
+                        <TextView
+                            android:id="@+id/tv_read_more"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Read more"
+                            android:textSize="@dimen/text_sm"
+                            android:textColor="@color/primary_green"
+                            android:background="@color/surface_white"
+                            android:paddingStart="@dimen/space_2"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignBottom="@id/tv_repo_desc"
+                            android:visibility="gone" />
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+        <!-- Tabs -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/background_gray"
+            app:tabIndicatorColor="@color/primary_green"
+            app:tabIndicatorHeight="2dp"
+            app:tabSelectedTextColor="@color/primary_green"
+            app:tabTextColor="@color/text_secondary"
+            app:tabTextAppearance="@style/TextAppearance.AppCompat.Small"
+            app:tabMode="scrollable"
+            app:tabGravity="start" />
+            
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/border_color" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/background_gray"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

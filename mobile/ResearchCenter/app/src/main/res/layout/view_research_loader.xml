@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="@dimen/space_8">
+
+    <FrameLayout
+        android:layout_width="96dp"
+        android:layout_height="96dp">
+
+        <View
+            android:id="@+id/spinCircle"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_dashed_circle" />
+
+        <FrameLayout
+            android:id="@+id/centerBox"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_loader_center">
+
+            <LinearLayout
+                android:layout_width="20dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="vertical">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_marginBottom="4dp"
+                    android:background="@color/surface_white" />
+
+                <View
+                    android:layout_width="15dp"
+                    android:layout_height="4dp"
+                    android:layout_marginBottom="4dp"
+                    android:background="@color/surface_white" />
+
+                <View
+                    android:layout_width="10dp"
+                    android:layout_height="4dp"
+                    android:background="@color/surface_white" />
+            </LinearLayout>
+        </FrameLayout>
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tvLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_6"
+        android:text="Loading..."
+        android:textColor="@color/text_secondary"
+        android:textSize="@dimen/text_sm"
+        android:textStyle="bold" />
+
+</LinearLayout>
