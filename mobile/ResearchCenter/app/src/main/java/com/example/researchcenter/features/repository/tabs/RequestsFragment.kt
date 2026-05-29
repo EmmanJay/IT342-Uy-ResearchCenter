@@ -66,7 +66,9 @@ class RequestsFragment : Fragment() {
             startActivity(intent)
         }
         
-        adapter = RequestAdapter(requests)
+        adapter = RequestAdapter(requests) { request ->
+            showRequestDetail(request)
+        }
         rvRequests.layoutManager = LinearLayoutManager(context)
         rvRequests.adapter = adapter
 
@@ -74,6 +76,14 @@ class RequestsFragment : Fragment() {
         loadRequests()
         
         return view
+    }
+
+    private fun showRequestDetail(request: MaterialRequest) {
+        com.example.researchcenter.features.request.RequestDetailBottomSheet.newInstance(
+            request.id, repoId, isOwner
+        ) {
+            loadRequests()
+        }.show(childFragmentManager, "RequestDetail")
     }
 
     private fun loadRequests() {

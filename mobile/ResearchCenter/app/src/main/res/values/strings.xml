@@ -1,5 +1,135 @@
 <resources>
     <string name="app_name">ResearchCenter</string>
+    <string name="google_web_client_id">YOUR_WEB_CLIENT_ID_HERE</string>
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_bookmarks">Bookmarks</string>
+    <string name="nav_notifications">Notifications</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- Login -->
+    <string name="sign_in">Sign In</string>
+    <string name="signing_in">Signing in…</string>
+    <string name="sign_in_subtitle">Enter your credentials to access your account</string>
+    <string name="email_hint">you@example.com</string>
+    <string name="password_hint">••••••••</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="no_account">Don\'t have an account? </string>
+    <string name="sign_up_link">Sign Up</string>
+    <string name="error_invalid_credentials">Invalid email or password</string>
+    <string name="error_suspended">Your account is suspended. Please contact administrator</string>
+
+    <!-- Register -->
+    <string name="create_account">Create Account</string>
+    <string name="creating_account">Creating account…</string>
+    <string name="register_subtitle">Join ResearchCenter to collaborate on research</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="email_address">Email Address</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="password_hint_text">At least 8 characters</string>
+    <string name="sign_up_with_google">Sign up with Google</string>
+    <string name="already_have_account">Already have an account? </string>
+    <string name="sign_in_link">Sign In</string>
+
+    <!-- Dashboard -->
+    <string name="welcome_back">Welcome back, %s!</string>
+    <string name="dashboard_subtitle">Manage your research repositories and collaborate with your team</string>
+    <string name="create_new_repo">+ Create New Research Repository</string>
+    <string name="your_repositories">Your Research Repositories (%d)</string>
+    <string name="invited_repositories">Invited Repositories (%d)</string>
+    <string name="no_repositories">No repositories yet</string>
+    <string name="no_repos_subtitle">Create your first research repository to get started</string>
+    <string name="recent_activity">Recent Activity</string>
+
+    <!-- Repository -->
+    <string name="create_repository">Create New Research Repository</string>
+    <string name="edit_repository">Edit Repository</string>
+    <string name="delete_repository">Delete Repository</string>
+    <string name="delete_repo_message">Delete \"%s\"? This removes the repository for everyone.</string>
+    <string name="leave_repository">Leave Repository</string>
+    <string name="repo_name_hint">e.g., ML Research</string>
+
+    <!-- Materials -->
+    <string name="materials">Materials</string>
+    <string name="add_material">Add Material</string>
+    <string name="edit_material">Edit Material</string>
+    <string name="save_material">Save Material</string>
+    <string name="search_materials">Search materials…</string>
+    <string name="no_materials">No materials found</string>
+    <string name="open_pdf">Open PDF</string>
+    <string name="open_link">Open Link</string>
+    <string name="my_note">My Note</string>
+    <string name="note_placeholder">Add a private note about this material…</string>
+    <string name="save_note">Save Note</string>
+
+    <!-- Requests -->
+    <string name="requests">Requests</string>
+    <string name="new_request">New Request</string>
+    <string name="fulfill_request">Fulfill Request</string>
+    <string name="no_requests">No requests found</string>
+
+    <!-- Members -->
+    <string name="members">Members</string>
+    <string name="invite_member">Invite Member</string>
+    <string name="no_members">No members found</string>
+    <string name="search_email_hint">Search by email address…</string>
+
+    <!-- Updates -->
+    <string name="updates">Updates</string>
+    <string name="post_update_hint">Share an update with your team…</string>
+    <string name="post">Post</string>
+    <string name="no_updates">No updates yet</string>
+
+    <!-- Activity -->
+    <string name="activity">Activity</string>
+    <string name="no_activity">No activity yet</string>
+
+    <!-- Bookmarks (global) -->
+    <string name="my_bookmarks">My Bookmarks</string>
+    <string name="bookmarks_subtitle">Your saved materials across all repositories</string>
+    <string name="search_bookmarks">Search bookmarks…</string>
+    <string name="no_bookmarks">No bookmarks found</string>
+    <string name="no_bookmarks_subtitle">Bookmark materials to save them here for quick access</string>
+
+    <!-- Notifications -->
+    <string name="notifications">Notifications</string>
+    <string name="no_notifications">No notifications yet</string>
+    <string name="load_more">Load more</string>
+
+    <!-- Profile -->
+    <string name="your_profile">Your Profile</string>
+    <string name="profile_subtitle">Manage your account settings</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="log_out">Log Out</string>
+    <string name="account_statistics">Account Statistics</string>
+    <string name="member_since">📅 Member since %s</string>
+    <string name="repos_created">📁 Repositories created: %d</string>
+    <string name="days_active">🗓️ Days active: %d</string>
+    <string name="remove_photo">Remove photo</string>
+
+    <!-- Invite -->
+    <string name="invite_title">You\'ve Been Invited</string>
+    <string name="accept">Accept</string>
+    <string name="decline">Decline</string>
+
+    <!-- General -->
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="create">Create</string>
+    <string name="or_text">or</string>
+    <string name="network_error">Network error. Check your connection.</string>
+    <string name="copied">Copied!</string>
+    <string name="show_more">Show more</string>
+    <string name="show_less">Show less</string>
+    <string name="page_of">Page %1$d of %2$d</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
+
     <string-array name="filter_options">
         <item>All</item>
         <item>Type</item>
@@ -9,5 +139,4 @@
         <item>Latest</item>
         <item>Oldest</item>
     </string-array>
-    <string name="google_web_client_id">YOUR_WEB_CLIENT_ID_HERE</string>
 </resources>

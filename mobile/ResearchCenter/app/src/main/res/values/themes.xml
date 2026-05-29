@@ -6,17 +6,79 @@
         <item name="colorSecondary">@color/secondary_green</item>
         <item name="colorError">@color/error_red</item>
         <item name="android:windowBackground">@color/background_gray</item>
+        <item name="bottomSheetDialogTheme">@style/Theme.ResearchCenter.BottomSheet</item>
     </style>
 
+    <!-- BottomSheet Theme -->
+    <style name="Theme.ResearchCenter.BottomSheet" parent="Theme.MaterialComponents.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.ResearchCenter.BottomSheet</item>
+        <item name="colorPrimary">@color/primary_green</item>
+    </style>
+
+    <style name="Widget.ResearchCenter.BottomSheet" parent="Widget.MaterialComponents.BottomSheet.Modal">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.ResearchCenter.BottomSheet</item>
+    </style>
+
+    <style name="ShapeAppearance.ResearchCenter.BottomSheet" parent="">
+        <item name="cornerSizeTopLeft">16dp</item>
+        <item name="cornerSizeTopRight">16dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <!-- Destructive Button -->
     <style name="Widget.ResearchCenter.Button.Destructive" parent="Widget.MaterialComponents.Button">
         <item name="backgroundTint">@color/error_red</item>
     </style>
-    
+
+    <!-- Tab Layout Style -->
+    <style name="Widget.ResearchCenter.TabLayout" parent="Widget.MaterialComponents.TabLayout">
+        <item name="tabIndicatorColor">@color/primary_green</item>
+        <item name="tabSelectedTextColor">@color/primary_green</item>
+        <item name="tabTextColor">@color/text_secondary</item>
+        <item name="tabMode">scrollable</item>
+        <item name="tabGravity">start</item>
+        <item name="tabIndicatorHeight">3dp</item>
+        <item name="tabRippleColor">@color/green_100</item>
+    </style>
+
+    <!-- Outlined TextInputLayout with green focus -->
+    <style name="Widget.ResearchCenter.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/primary_green</item>
+        <item name="hintTextColor">@color/primary_green</item>
+        <item name="boxCornerRadiusTopStart">6dp</item>
+        <item name="boxCornerRadiusTopEnd">6dp</item>
+        <item name="boxCornerRadiusBottomStart">6dp</item>
+        <item name="boxCornerRadiusBottomEnd">6dp</item>
+    </style>
+
+    <!-- Green filled button -->
+    <style name="Widget.ResearchCenter.Button.Green" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/primary_green</item>
+        <item name="cornerRadius">6dp</item>
+    </style>
+
+    <!-- Outlined button -->
+    <style name="Widget.ResearchCenter.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="strokeColor">@color/border_color</item>
+        <item name="cornerRadius">6dp</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <!-- Filter Chip style -->
     <style name="Widget.ResearchCenter.Chip.Filter" parent="Widget.MaterialComponents.Chip.Choice">
         <item name="chipBackgroundColor">@color/surface_white</item>
-        <item name="chipStrokeColor">@color/text_secondary</item>
+        <item name="chipStrokeColor">@color/border_color</item>
         <item name="chipStrokeWidth">1dp</item>
         <item name="android:textColor">@color/text_secondary</item>
         <item name="checkedIconVisible">false</item>
+        <item name="chipCornerRadius">999dp</item>
+    </style>
+
+    <!-- Bottom Navigation style -->
+    <style name="Widget.ResearchCenter.BottomNavigation" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="itemIconTint">@color/bottom_nav_color</item>
+        <item name="itemTextColor">@color/bottom_nav_color</item>
+        <item name="android:background">@color/surface_white</item>
     </style>
 </resources>

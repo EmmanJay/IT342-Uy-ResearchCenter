@@ -25,7 +25,9 @@ const LoginPage = () => {
     try {
       const authData = await authApi.login({ email, password });
       SessionManager.saveAuthData(authData);
-      const returnTo = (location.state as any)?.returnTo;
+      const searchParams = new URLSearchParams(location.search);
+      const queryReturnUrl = searchParams.get('returnUrl');
+      const returnTo = (location.state as any)?.returnTo || queryReturnUrl;
       navigate(returnTo || '/dashboard', { replace: true });
     } catch (err: any) {
       const errorMsg = err.message || err.response?.data?.message || 'Something went wrong. Please try again.';
@@ -53,7 +55,9 @@ const LoginPage = () => {
     try {
       const authData = await authApi.googleAuth(credentialResponse.credential);
       SessionManager.saveAuthData(authData);
-      const returnTo = (location.state as any)?.returnTo;
+      const searchParams = new URLSearchParams(location.search);
+      const queryReturnUrl = searchParams.get('returnUrl');
+      const returnTo = (location.state as any)?.returnTo || queryReturnUrl;
       navigate(returnTo || '/dashboard', { replace: true });
     } catch (err: any) {
       const errorMsg = err.message || 'Google sign-in failed. Please try again.';
@@ -154,7 +158,6 @@ const LoginPage = () => {
               onError={() => setError('Google sign-in failed.')}
               theme="outline"
               size="large"
-              width="100%"
               text="signin_with"
             />
           </div>

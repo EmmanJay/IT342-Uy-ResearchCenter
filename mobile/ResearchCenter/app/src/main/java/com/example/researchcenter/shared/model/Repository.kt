@@ -10,6 +10,7 @@ data class Repository(
     val role: String?,          // "OWNER" or "MEMBER" — your role in this repo
     val memberCount: Int,
     val materialCount: Int,
+    val requestCount: Int = 0,
     val createdAt: String,
     val updatedAt: String? = null,
     val bookmarked: Boolean = false
@@ -34,5 +35,26 @@ data class RepositoryMember(
     val name: String,
     val email: String,
     val role: String,           // "OWNER" or "MEMBER"
-    val joinedAt: String
+    val profilePicture: String? = null,
+    val joinedAt: String? = null
 )
+
+data class MaterialNote(
+    val id: Long? = null,
+    val materialId: Long? = null,
+    val content: String,
+    val userId: Long? = null
+)
+
+data class InvitePreview(
+    val repositoryId: Long,
+    val repositoryName: String,
+    val status: String,
+    val email: String
+)
+
+data class AcceptInviteResponse(
+    val repositoryId: Long?,
+    val message: String?
+)
+

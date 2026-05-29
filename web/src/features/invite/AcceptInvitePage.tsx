@@ -28,13 +28,13 @@ const AcceptInvitePage = () => {
   const [invite, setInvite] = useState<InvitePreview | null>(null);
   const navigate = useNavigate();
 
+  const user = SessionManager.getUser();
+
   const returnToLogin = useCallback(() => {
     if (!token) return;
     SessionManager.clear();
-    navigate('/login', {
-      replace: true,
-      state: { returnTo: `/invite/accept?token=${encodeURIComponent(token)}` },
-    });
+    const returnUrl = encodeURIComponent(`/invite/accept?token=${token}`);
+    navigate(`/login?returnUrl=${returnUrl}`, { replace: true });
   }, [navigate, token]);
 
   useEffect(() => {
@@ -52,7 +52,14 @@ const AcceptInvitePage = () => {
       try {
         setStatus('checking');
         const resp = await axiosClient.get(`/invitations/${token}`);
-        setInvite(resp.data?.data || null);
+        const data = resp.data?.data;
+        
+        if (data && user && user.email !== data.email) {
+          returnToLogin();
+          return;
+        }
+
+        setInvite(data || null);
         setStatus('ready');
       } catch (error: unknown) {
         const errorResponse = getErrorResponse(error);
@@ -90,6 +97,26 @@ const AcceptInvitePage = () => {
     }
   };
 
+  const rejectInvite = async () => {
+    if (!token) return;
+    try {
+      setStatus('accepting'); // Reusing accepting state for loading
+      await axiosClient.post(`/invitations/${token}/reject`);
+      setStatus('success');
+      setMessage('Invitation rejected');
+      setTimeout(() => navigate('/dashboard'), 700);
+    } catch (error: unknown) {
+      const errorResponse = getErrorResponse(error);
+      const statusCode = errorResponse.response?.status;
+      if (statusCode === 401 || statusCode === 403) {
+        returnToLogin();
+        return;
+      }
+      setStatus('error');
+      setMessage(errorResponse.response?.data?.message || errorResponse.response?.data?.error?.message || 'Failed to reject invitation');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -108,10 +135,10 @@ const AcceptInvitePage = () => {
               <div className="flex gap-3">
                 <button
                   type="button"
-                  onClick={() => navigate('/dashboard')}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
+                  onClick={rejectInvite}
+                  className="flex-1 px-4 py-2 border border-red-300 rounded-md text-sm font-medium text-red-700 hover:bg-red-50 cursor-pointer"
                 >
-                  Cancel
+                  Reject
                 </button>
                 <button
                   type="button"

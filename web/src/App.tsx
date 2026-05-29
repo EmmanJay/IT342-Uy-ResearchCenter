@@ -22,6 +22,7 @@ import AdminUsersPage from './features/admin/AdminUsersPage';
 import AdminRepositoriesPage from './features/admin/AdminRepositoriesPage';
 import AdminRequestsPage from './features/admin/AdminRequestsPage';
 import AdminMaterialsPage from './features/admin/AdminMaterialsPage';
+import AdminAnnouncementsPage from './features/admin/AdminAnnouncementsPage';
 import AdminActivityPage from './features/admin/AdminActivityPage';
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -153,14 +154,15 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<Navigate to="/admin/stats" replace />} />
+          <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
             <Route path="stats" element={<AdminStatsPage />} />
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="repositories" element={<AdminRepositoriesPage />} />
-            <Route path="requests" element={<AdminRequestsPage />} />
             <Route path="materials" element={<AdminMaterialsPage />} />
+            <Route path="requests" element={<AdminRequestsPage />} />
+            <Route path="announcements" element={<AdminAnnouncementsPage />} />
             <Route path="activity" element={<AdminActivityPage />} />
+            <Route index element={<Navigate to="/admin/stats" replace />} />
           </Route>
           <Route path="/" element={<Navigate to={SessionManager.getUser()?.role === 'ADMIN' ? '/admin/stats' : '/dashboard'} replace />} />
         </Routes>

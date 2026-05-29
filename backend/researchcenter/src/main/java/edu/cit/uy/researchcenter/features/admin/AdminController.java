@@ -136,7 +136,7 @@ public class AdminController {
     @GetMapping("/materials")
     public ResponseEntity<?> listMaterials() {
         String sql = """
-                SELECT m.id, m.title, m.repository_id, r.name AS repository_name,
+                SELECT m.id, m.title, m.description, m.isbn, m.repository_id, r.name AS repository_name,
                        m.uploader_id, u.first_name, u.last_name,
                        m.material_type, m.file_url, m.url, m.status, m.created_at
                 FROM materials m
@@ -155,9 +155,12 @@ public class AdminController {
             row.put("repositoryName", rs.getString("repository_name"));
             row.put("uploaderId", rs.getObject("uploader_id"));
             row.put("uploaderName", joinName(firstName, lastName));
+            row.put("description", rs.getString("description"));
+            row.put("isbn", rs.getString("isbn"));
             row.put("fileType", rs.getString("material_type"));
             row.put("materialType", rs.getString("material_type"));
-            row.put("fileUrl", fileUrl != null ? fileUrl : rs.getString("url"));
+            row.put("fileUrl", fileUrl);
+            row.put("url", rs.getString("url"));
             row.put("status", rs.getString("status"));
             row.put("createdAt", rs.getObject("created_at"));
             return row;

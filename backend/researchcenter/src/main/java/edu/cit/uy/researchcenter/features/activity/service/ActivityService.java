@@ -15,7 +15,7 @@ public class ActivityService {
 
     private final ActivityRepository activityRepository;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void logActivity(User actor, String action, String targetType, Long targetId, String targetName, ResearchRepository repo, Long targetUserId, String description) {
         String actorName = actor != null ? (actor.getFirstName() + " " + actor.getLastName()).trim() : "System";
         if (actorName.isEmpty() && actor != null) {

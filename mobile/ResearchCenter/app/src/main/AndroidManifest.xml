@@ -26,15 +26,16 @@
 
         <activity android:name=".features.auth.LoginActivity" android:exported="false" />
         <activity android:name=".features.auth.RegisterActivity" android:exported="false" />
+        <activity android:name=".features.main.MainActivity" android:exported="false" />
         <activity android:name=".features.dashboard.DashboardActivity" android:exported="false" />
         <activity android:name=".features.profile.ProfileActivity" android:exported="false" />
     
         <activity android:name=".features.repository.RepositoryDetailActivity" />
         <activity android:name=".features.repository.CreateRepositoryActivity" />
         <activity android:name=".features.material.AddMaterialActivity" />
+        <activity android:name=".features.material.EditMaterialActivity" />
         <activity android:name=".features.request.NewRequestActivity" />
 
-        
         <activity android:name=".features.activity.NotificationsActivity" android:exported="false" />
 
         <activity android:name=".features.invite.AcceptInviteActivity" android:exported="true">
@@ -42,10 +43,8 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <!-- Web frontend host and port for local testing -->
                 <data android:scheme="http" android:host="localhost" android:port="5173" android:pathPrefix="/invite/accept" />
                 <data android:scheme="http" android:host="127.0.0.1" android:port="5173" android:pathPrefix="/invite/accept" />
-                <!-- In production, we'd add the real domain here -->
             </intent-filter>
         </activity>
         

@@ -30,14 +30,15 @@ const readableAction = (action = '') => {
   return words || 'performed an action';
 };
 
-const withActor = (message: string, log: ActivityLike, includeActor: boolean, selfLabel: string) => {
+const withActor = (message: string, log: ActivityLike, includeActor: boolean, selfLabel: string, isCurrentUser?: boolean) => {
   if (!includeActor) return message;
-  return `${log.actorName || selfLabel} ${message}`;
+  const actor = isCurrentUser ? 'You' : (log.actorName || selfLabel);
+  return `${actor} ${message}`;
 };
 
 export const formatActivityMessage = (
   log: ActivityLike,
-  options: { includeActor?: boolean; includeRepositoryName?: boolean; selfLabel?: string } = {}
+  options: { includeActor?: boolean; includeRepositoryName?: boolean; selfLabel?: string; isCurrentUser?: boolean } = {}
 ) => {
   const includeActor = options.includeActor ?? true;
   const includeRepositoryName = options.includeRepositoryName ?? true;
@@ -48,26 +49,28 @@ export const formatActivityMessage = (
 
   switch (actionKey) {
     case 'UPLOADED_MATERIAL':
-      return withActor(`uploaded material "${target || 'Untitled material'}"`, log, includeActor, selfLabel);
+      return withActor(`uploaded material "${target || 'Untitled material'}"`, log, includeActor, selfLabel, options.isCurrentUser);
     case 'CREATED_REPOSITORY':
-      return withActor(`created repository "${target || repo || 'Untitled repository'}"`, log, includeActor, selfLabel);
+      return withActor(`created repository "${target || repo || 'Untitled repository'}"`, log, includeActor, selfLabel, options.isCurrentUser);
     case 'UPDATED_REPOSITORY':
-      return withActor(`updated repository "${target || repo || 'Untitled repository'}"`, log, includeActor, selfLabel);
+      return withActor(`updated repository "${target || repo || 'Untitled repository'}"`, log, includeActor, selfLabel, options.isCurrentUser);
     case 'INVITED_MEMBER':
-      return withActor(`invited ${target || 'a member'}${includeRepositoryName && repo ? ` to "${repo}"` : ''}`, log, includeActor, selfLabel);
+      return withActor(`invited ${target || 'a member'}${includeRepositoryName && repo ? ` to "${repo}"` : ''}`, log, includeActor, selfLabel, options.isCurrentUser);
     case 'JOINED_REPOSITORY':
-      return withActor(`joined repository "${repo || target || 'this repository'}"`, log, includeActor, selfLabel);
+      return withActor(`joined repository "${repo || target || 'this repository'}"`, log, includeActor, selfLabel, options.isCurrentUser);
     case 'LEFT_REPOSITORY':
-      return withActor(`left repository "${repo || target || 'this repository'}"`, log, includeActor, selfLabel);
+      return withActor(`left repository "${repo || target || 'this repository'}"`, log, includeActor, selfLabel, options.isCurrentUser);
     case 'CREATED_REQUEST':
-      return withActor(`requested material "${target || 'Untitled request'}"`, log, includeActor, selfLabel);
+      return withActor(`requested material "${target || 'Untitled request'}"`, log, includeActor, selfLabel, options.isCurrentUser);
     case 'FULFILLED_REQUEST':
-      return withActor(`fulfilled request "${target || 'Untitled request'}"`, log, includeActor, selfLabel);
+      return withActor(`fulfilled request "${target || 'Untitled request'}"`, log, includeActor, selfLabel, options.isCurrentUser);
     case 'CLOSED_REQUEST':
-      return withActor(`closed request "${target || 'Untitled request'}"`, log, includeActor, selfLabel);
+      return withActor(`closed request "${target || 'Untitled request'}"`, log, includeActor, selfLabel, options.isCurrentUser);
     case 'DELETED_MATERIAL':
-      return withActor(`deleted material "${target || 'Untitled material'}"`, log, includeActor, selfLabel);
+      return withActor(`deleted material "${target || 'Untitled material'}"`, log, includeActor, selfLabel, options.isCurrentUser);
+    case 'POSTED_UPDATE':
+      return withActor(`posted an update in "${repo || 'this repository'}"`, log, includeActor, selfLabel, options.isCurrentUser);
     default:
-      return withActor(`${log.description || readableAction(log.action)}${target ? ` "${target}"` : ''}`, log, includeActor, selfLabel);
+      return withActor(`${log.description || readableAction(log.action)}${target ? ` "${target}"` : ''}`, log, includeActor, selfLabel, options.isCurrentUser);
   }
 };

@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MaterialService {
 
     private static final Logger logger = LoggerFactory.getLogger(MaterialService.class);

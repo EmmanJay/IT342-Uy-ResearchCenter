@@ -1,29 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary_green">#16a34a</color>       <!-- Tailwind green-600 -->
-    <color name="primary_green_dark">#15803d</color>   <!-- Tailwind green-700 -->
-    <color name="secondary_green">#22c55e</color>      <!-- Tailwind green-500 -->
-    <color name="success_green">#166534</color>        <!-- Tailwind green-800 -->
+    <!-- Brand / Primary -->
+    <color name="primary_green">#16a34a</color>       <!-- green-600 -->
+    <color name="primary_green_dark">#15803d</color>   <!-- green-700 -->
+    <color name="primary_green_900">#14532d</color>    <!-- green-900 -->
+    <color name="secondary_green">#22c55e</color>      <!-- green-500 -->
+    <color name="success_green">#166534</color>        <!-- green-800 -->
     <color name="green_50">#f0fdf4</color>
     <color name="green_100">#dcfce7</color>
     <color name="green_200">#bbf7d0</color>
-    <color name="teal_badge">#4DB6AC</color>           <!-- Type badges, FULFILLED badge, selected chips -->
+    <color name="green_300">#86efac</color>
+
+    <!-- Emerald (Notifications) -->
+    <color name="emerald_50">#ecfdf5</color>
+    <color name="emerald_100">#d1fae5</color>
+
+    <!-- Background / Surface -->
+    <color name="background_gray">#f9fafb</color>     <!-- gray-50 -->
+    <color name="surface_white">#ffffff</color>
+
+    <!-- Borders -->
+    <color name="border_color">#e5e7eb</color>         <!-- gray-200 -->
+    <color name="divider">#e5e7eb</color>
+
+    <!-- Text -->
+    <color name="text_primary">#111827</color>         <!-- gray-900 -->
+    <color name="text_secondary">#6b7280</color>       <!-- gray-500 -->
+    <color name="text_tertiary">#9ca3af</color>        <!-- gray-400 -->
+    <color name="text_hint">#9ca3af</color>            <!-- gray-400 -->
+
+    <!-- Gray Scale -->
+    <color name="gray_50">#f9fafb</color>
+    <color name="gray_100">#f3f4f6</color>
+    <color name="gray_200">#e5e7eb</color>
+    <color name="gray_300">#d1d5db</color>
+    <color name="gray_400">#9ca3af</color>
+    <color name="gray_500">#6b7280</color>
+    <color name="gray_600">#4b5563</color>
+    <color name="gray_700">#374151</color>
+    <color name="gray_900">#111827</color>
+
+    <!-- Red / Error -->
     <color name="red_50">#fef2f2</color>
     <color name="red_200">#fecaca</color>
-    <color name="error_red">#dc2626</color>            <!-- Tailwind red-600 -->
-    <color name="warning_amber">#d97706</color>        <!-- Tailwind amber-600 -->
-    <color name="status_in_progress">#f59e0b</color>   <!-- Tailwind amber-500 -->
-    <color name="status_completed">#22c55e</color>     <!-- Tailwind green-500 -->
-    <color name="status_to_read">#94a3b8</color>       <!-- Tailwind slate-400 -->
-    <color name="tag_chip_bg">#e2e8f0</color>          <!-- Tailwind slate-200 -->
-    <color name="tag_chip_text">#334155</color>        <!-- Tailwind slate-700 -->
-    <color name="surface_white">#FFFFFF</color>
-    <color name="background_gray">#f8fafc</color>      <!-- Tailwind slate-50 -->
-    <color name="text_primary">#0f172a</color>         <!-- Tailwind slate-900 -->
-    <color name="text_secondary">#475569</color>       <!-- Tailwind slate-600 -->
-    <color name="text_hint">#94a3b8</color>            <!-- Tailwind slate-400 -->
-    <color name="divider">#e2e8f0</color>              <!-- Tailwind slate-200 -->
-    <color name="border_color">#e5e7eb</color>         <!-- Tailwind gray-200 -->
-    <color name="status_cancelled">#dc2626</color>     <!-- Tailwind red-600 -->
+    <color name="red_600">#dc2626</color>
+    <color name="red_700">#b91c1c</color>
+    <color name="error_red">#dc2626</color>
+
+    <!-- Amber / Warning -->
+    <color name="amber_100">#fef3c7</color>
+    <color name="amber_600">#d97706</color>
+    <color name="amber_700">#b45309</color>
+    <color name="warning_amber">#d97706</color>
+
+    <!-- Blue / Info -->
+    <color name="blue_100">#dbeafe</color>
+    <color name="blue_700">#1d4ed8</color>
+
+    <!-- Purple -->
+    <color name="purple_100">#f3e8ff</color>
+    <color name="purple_700">#7e22ce</color>
+
+    <!-- Status Badge Colors -->
+    <color name="status_to_read_bg">#f3f4f6</color>
+    <color name="status_to_read_text">#374151</color>
+    <color name="status_in_progress_bg">#fef3c7</color>
+    <color name="status_in_progress_text">#b45309</color>
+    <color name="status_completed_bg">#dcfce7</color>
+    <color name="status_completed_text">#15803d</color>
+
+    <!-- Request Status Badge Colors -->
+    <color name="status_open_bg">#dbeafe</color>
+    <color name="status_open_text">#1d4ed8</color>
+    <color name="status_fulfilled_bg">#dcfce7</color>
+    <color name="status_fulfilled_text">#166534</color>
+    <color name="status_pending_bg">#fef3c7</color>
+    <color name="status_pending_text">#b45309</color>
+    <color name="status_cancelled_bg">#f3f4f6</color>
+    <color name="status_cancelled_text">#4b5563</color>
+
+    <!-- Material Type Badge Colors -->
+    <color name="type_pdf_bg">#dbeafe</color>
+    <color name="type_pdf_text">#1d4ed8</color>
+    <color name="type_link_bg">#f3e8ff</color>
+    <color name="type_link_text">#7e22ce</color>
+    <color name="type_reference_bg">#dcfce7</color>
+    <color name="type_reference_text">#15803d</color>
+
+    <!-- Tag Chips -->
+    <color name="tag_chip_bg">#f3f4f6</color>
+    <color name="tag_chip_text">#374151</color>
+
+    <!-- Legacy aliases -->
+    <color name="teal_badge">#4DB6AC</color>
+    <color name="status_in_progress">#f59e0b</color>
+    <color name="status_completed">#22c55e</color>
+    <color name="status_to_read">#94a3b8</color>
+    <color name="status_cancelled">#dc2626</color>
     <color name="card_shadow">#1A000000</color>
 </resources>

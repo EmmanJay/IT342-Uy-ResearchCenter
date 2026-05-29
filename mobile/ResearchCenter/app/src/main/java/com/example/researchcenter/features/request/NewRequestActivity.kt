@@ -7,6 +7,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import android.app.Activity
+import androidx.appcompat.app.AppCompatActivity
 import com.example.researchcenter.R
 import com.example.researchcenter.shared.api.RetrofitClient
 import com.example.researchcenter.shared.api.RequestApi
@@ -17,7 +18,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class NewRequestActivity : Activity() {
+class NewRequestActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,12 +45,11 @@ class NewRequestActivity : Activity() {
 
             val requestApi = RetrofitClient.createService<RequestApi>()
             val body = mapOf(
-                "repositoryId" to repoId,
                 "title" to title,
                 "description" to etDesc.text.toString().trim()
             )
 
-            requestApi.createRequest(body).enqueue(object : Callback<ApiResponse<MaterialRequest>> {
+            requestApi.createRequest(repoId, body).enqueue(object : Callback<ApiResponse<MaterialRequest>> {
                 override fun onResponse(call: Call<ApiResponse<MaterialRequest>>, response: Response<ApiResponse<MaterialRequest>>) {
                     runOnUiThread {
                         btnCreate.isEnabled = true

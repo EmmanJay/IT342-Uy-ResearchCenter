@@ -11,7 +11,8 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class RequestAdapter(
-    private val requests: List<MaterialRequest>
+    private val requests: List<MaterialRequest>,
+    private val onItemClick: (MaterialRequest) -> Unit
 ) : RecyclerView.Adapter<RequestAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -40,6 +41,10 @@ class RequestAdapter(
             holder.tvDate.text = parser.parse(request.createdAt)?.let { formatter.format(it) } ?: request.createdAt
         } catch (e: Exception) {
             holder.tvDate.text = request.createdAt
+        }
+
+        holder.itemView.setOnClickListener {
+            onItemClick(request)
         }
     }
 

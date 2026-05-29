@@ -7,9 +7,6 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface ActivityApi {
-    @GET("activity")
-    fun getActivity(): Call<Any>
-
     @GET("activities")
     fun getActivities(
         @Query("page") page: Int,
@@ -21,5 +18,11 @@ interface ActivityApi {
         @Query("repositoryId") repositoryId: Long,
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 100
+    ): Call<ApiResponse<List<ActivityLog>>>
+
+    @GET("activities/notifications")
+    fun getNotifications(
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 10
     ): Call<ApiResponse<List<ActivityLog>>>
 }

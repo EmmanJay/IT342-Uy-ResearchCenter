@@ -35,6 +35,13 @@ public class InvitationController {
         return ResponseEntity.ok(wrap(true, repositoryService.acceptInvitation(token, user.getId()), null));
     }
 
+    @PostMapping("/{token}/reject")
+    public ResponseEntity<?> rejectInvitation(@AuthenticationPrincipal UserDetails principal, @PathVariable String token) {
+        User user = userService.findByEmail(principal.getUsername());
+        repositoryService.rejectInvitation(token, user.getId());
+        return ResponseEntity.ok(wrap(true, Map.of("message", "Invitation rejected"), null));
+    }
+
     private Map<String, Object> wrap(boolean success, Object data, Object error) {
         return Map.of(
                 "success", success,

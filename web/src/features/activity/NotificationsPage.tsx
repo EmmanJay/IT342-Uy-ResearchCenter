@@ -6,6 +6,7 @@ import { useWebSocket } from '../../shared/context/WebSocketProvider';
 import { formatDate } from '../../shared/utils/dateUtils';
 import LoadingScreen from '../../shared/components/LoadingScreen';
 import { formatActivityMessage } from '../../shared/utils/activityFormat';
+import Navbar from '../../shared/components/Navbar';
 
 interface ActivityLog {
   id: number;
@@ -82,8 +83,9 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 px-6 py-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <main className="max-w-4xl mx-auto px-6 py-8">
         <div className="flex items-center gap-3 mb-6 border-b border-emerald-100 pb-4">
           <div className="p-3 bg-emerald-50 text-green-700 rounded-full border border-emerald-100">
             <Bell className="w-6 h-6" />
@@ -154,7 +156,7 @@ export default function NotificationsPage() {
             </div>
           )}
         </div>
-      </div>
+      </main>
     </div>
   );
 }

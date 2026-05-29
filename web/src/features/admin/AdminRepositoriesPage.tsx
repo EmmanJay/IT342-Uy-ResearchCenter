@@ -14,7 +14,8 @@ export default function AdminRepositoriesPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [repoToDelete, setRepoToDelete] = useState<number | null>(null);
   const [search, setSearch] = useState('');
-  const [visibilityFilter, setVisibilityFilter] = useState('ALL');
+  const [filter, setFilter] = useState('ALL');
+  const [sortOrder, setSortOrder] = useState('LATEST');
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -42,20 +43,22 @@ export default function AdminRepositoriesPage() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, visibilityFilter]);
+  }, [search]);
 
   const filteredRepositories = useMemo(() => {
     const query = search.trim().toLowerCase();
-    return repositories.filter((r) => {
+    const filtered = repositories.filter((r) => {
       const searchable = `${r.id} ${r.name || ''} ${r.description || ''} ${r.owner || ''}`.toLowerCase();
-      const matchesSearch = !query || searchable.includes(query);
-      const matchesVisibility =
-        visibilityFilter === 'ALL' ||
-        (visibilityFilter === 'PUBLIC' && r.isPublic) ||
-        (visibilityFilter === 'PRIVATE' && !r.isPublic);
-      return matchesSearch && matchesVisibility;
+      return !query || searchable.includes(query);
     });
-  }, [repositories, search, visibilityFilter]);
+    
+    // Sort logic based on filter
+    if (sortOrder === 'LATEST') {
+      return filtered.sort((a, b) => b.id - a.id);
+    } else {
+      return filtered.sort((a, b) => a.id - b.id);
+    }
+  }, [repositories, search, filter, sortOrder]);
 
   const totalPages = Math.max(1, Math.ceil(filteredRepositories.length / PAGE_SIZE));
   const paginatedRepositories = filteredRepositories.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
@@ -100,19 +103,19 @@ export default function AdminRepositoriesPage() {
           search={search}
           onSearchChange={setSearch}
           filterLabel="Filter repositories"
-          filterValue={visibilityFilter}
-          onFilterChange={setVisibilityFilter}
+          filterValue={filter}
+          onFilterChange={setFilter}
           filterOptions={[
-            { label: 'All repositories', value: 'ALL' },
-            { label: 'Public', value: 'PUBLIC' },
-            { label: 'Private', value: 'PRIVATE' },
+            { label: 'All Repositories', value: 'ALL' },
+          ]}
+          sortValue={sortOrder}
+          onSortChange={setSortOrder}
+          sortOptions={[
+            { label: 'Latest First', value: 'LATEST' },
+            { label: 'Oldest First', value: 'OLDEST' },
           ]}
           resultCount={filteredRepositories.length}
           totalCount={repositories.length}
-          currentPage={Math.min(currentPage, totalPages)}
-          totalPages={totalPages}
-          onPreviousPage={() => setCurrentPage((page) => Math.max(1, page - 1))}
-          onNextPage={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
         />
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-gray-600">
@@ -121,7 +124,7 @@ export default function AdminRepositoriesPage() {
                 <th className="px-6 py-4">ID</th>
                 <th className="px-6 py-4">Name</th>
                 <th className="px-6 py-4">Description</th>
-                <th className="px-6 py-4">Visibility</th>
+                <th className="px-6 py-4">Owner</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
@@ -131,12 +134,7 @@ export default function AdminRepositoriesPage() {
                   <td className="px-6 py-4 font-medium text-gray-900">{r.id}</td>
                   <td className="px-6 py-4 font-medium text-gray-900">{r.name}</td>
                   <td className="px-6 py-4 max-w-xs truncate">{r.description}</td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                      ${r.isPublic ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
-                      {r.isPublic ? 'Public' : 'Private'}
-                    </span>
-                  </td>
+                  <td className="px-6 py-4 text-gray-700">{r.owner || 'Unknown'}</td>
                   <td className="px-6 py-4 text-right">
                     <button
                       onClick={() => handleDeleteClick(r.id)}
@@ -158,6 +156,27 @@ export default function AdminRepositoriesPage() {
             </tbody>
           </table>
         </div>
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-4 py-4 border-t border-gray-200">
+            <button
+              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+              disabled={currentPage === 1}
+              className="flex items-center gap-1 text-sm font-medium text-gray-500 disabled:opacity-50 hover:text-green-700 cursor-pointer"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/></svg>
+              Previous
+            </button>
+            <span className="text-sm text-gray-600">Page {currentPage} of {totalPages}</span>
+            <button
+              onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+              disabled={currentPage === totalPages}
+              className="flex items-center gap-1 text-sm font-medium text-gray-500 disabled:opacity-50 hover:text-green-700 cursor-pointer"
+            >
+              Next
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        )}
       </div>
 
       <ConfirmModal

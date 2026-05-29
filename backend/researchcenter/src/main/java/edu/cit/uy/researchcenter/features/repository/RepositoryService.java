@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class RepositoryService {
 
     private final ResearchRepositoryRepo repositoryRepo;
@@ -57,6 +58,7 @@ public class RepositoryService {
     public List<RepositoryResponse> getAllForUser(Long userId) {
         List<RepositoryMember> memberships = memberRepo.findAllByUserId(userId);
         return memberships.stream()
+                .filter(m -> "ACCEPTED".equalsIgnoreCase(m.getStatus()) || "OWNER".equalsIgnoreCase(m.getRoleInRepo()))
                 .map(m -> toResponse(m.getRepository(), userId))
                 .collect(Collectors.toList());
     }
@@ -156,6 +158,16 @@ public class RepositoryService {
         );
     }
 
+    @Transactional
+    public void rejectInvitation(String inviteToken, Long callerId) {
+        RepositoryMember member = memberRepo.findByInviteToken(inviteToken)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Invitation not found"));
+        if (!member.getUser().getId().equals(callerId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Please log in using the invited account");
+        }
+        memberRepo.delete(member);
+    }
+
     // ── Get members ───────────────────────────────────────────────────────
     public List<RepositoryResponse.MemberDto> getMembers(Long repoId, Long callerId) {
         assertMember(repoId, callerId);
@@ -202,8 +214,11 @@ public class RepositoryService {
     }
 
     private void assertMember(Long repoId, Long callerId) {
-        if (!memberRepo.existsByRepositoryIdAndUserId(repoId, callerId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not a repository member");
+        RepositoryMember member = memberRepo.findByRepositoryIdAndUserId(repoId, callerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Not a repository member"));
+        boolean isLegacyOwner = "OWNER".equalsIgnoreCase(member.getRoleInRepo());
+        if (!"ACCEPTED".equalsIgnoreCase(member.getStatus()) && !isLegacyOwner) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invitation pending. Please accept the invitation first.");
         }
     }
 

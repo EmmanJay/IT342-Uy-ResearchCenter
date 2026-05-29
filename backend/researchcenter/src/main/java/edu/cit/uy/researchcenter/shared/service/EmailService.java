@@ -30,27 +30,22 @@ public class EmailService {
 
     public void sendRepositoryInviteEmail(String toEmail, String repoName, String inviterName, String inviteToken) {
         String subject = "You've been invited to join " + repoName + " on ResearchCenter";
+        String inviteLink = frontendUrl + "/invite/accept?token=" + inviteToken;
+        
+        logger.info("\n\n======================================================\n" +
+                    "  [LOCAL DEV] INVITATION LINK FOR " + toEmail + ":\n  " + inviteLink +
+                    "\n======================================================\n");
+                    
         String htmlContent = buildHtmlTemplate(
             "Repository Invitation",
             inviterName + " has invited you to collaborate on the repository: <strong>" + repoName + "</strong>.",
             "Click the button below to accept the invitation and join the repository.",
             "Accept Invitation",
-            frontendUrl + "/invite/accept?token=" + inviteToken
+            inviteLink
         );
         sendEmail(toEmail, subject, htmlContent);
     }
 
-    public void sendRequestFulfilledEmail(String toEmail, String repoName, String materialTitle) {
-        String subject = "Material Request Fulfilled in " + repoName;
-        String htmlContent = buildHtmlTemplate(
-            "Request Fulfilled",
-            "Great news! The material <strong>" + materialTitle + "</strong> has been uploaded to <strong>" + repoName + "</strong>.",
-            "You can now view this material in the repository.",
-            "View Material",
-            frontendUrl + "/dashboard"
-        );
-        sendEmail(toEmail, subject, htmlContent);
-    }
 
     private void sendEmail(String to, String subject, String htmlContent) {
         Email from = new Email(fromEmailStr);

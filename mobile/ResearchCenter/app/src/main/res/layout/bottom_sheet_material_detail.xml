@@ -210,6 +210,45 @@
                     android:orientation="horizontal" />
             </HorizontalScrollView>
 
+            <!-- Private Note Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="My Private Note"
+                android:textSize="@dimen/text_sm"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="@dimen/space_2" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_3"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/primary_green"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etMatNote"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minLines="3"
+                    android:gravity="top|start"
+                    android:hint="Add a private note about this material..."
+                    android:textSize="@dimen/text_sm" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnMatSaveNote"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Save Note"
+                android:textColor="@color/primary_green"
+                android:textSize="@dimen/text_sm"
+                android:layout_gravity="end"
+                android:layout_marginBottom="@dimen/space_4" />
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"

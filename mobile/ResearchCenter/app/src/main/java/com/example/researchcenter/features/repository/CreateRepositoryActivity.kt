@@ -6,7 +6,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import android.app.Activity
+import androidx.appcompat.app.AppCompatActivity
 import com.example.researchcenter.R
 import com.example.researchcenter.shared.api.RetrofitClient
 import com.example.researchcenter.shared.api.RepositoryApi
@@ -17,7 +17,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class CreateRepositoryActivity : Activity() {
+class CreateRepositoryActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

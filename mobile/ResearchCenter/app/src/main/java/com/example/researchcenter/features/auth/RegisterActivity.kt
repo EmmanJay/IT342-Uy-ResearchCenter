@@ -1,6 +1,6 @@
 package com.example.researchcenter.features.auth
 
-import android.app.Activity
+import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -28,7 +28,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
-class RegisterActivity : Activity() {
+class RegisterActivity : AppCompatActivity() {
 
     private lateinit var googleSignInClient: GoogleSignInClient
 

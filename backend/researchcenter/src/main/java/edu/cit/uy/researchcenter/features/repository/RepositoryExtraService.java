@@ -25,6 +25,7 @@ public class RepositoryExtraService {
     private final PrivateNoteRepository noteRepository;
     private final RepositoryUpdateRepository updateRepository;
     private final ResearchRepositoryRepo researchRepositoryRepo;
+    private final edu.cit.uy.researchcenter.features.activity.service.ActivityService activityService;
 
     @org.springframework.transaction.annotation.Transactional
     public boolean toggleBookmark(Long userId, Long repositoryId) {
@@ -62,15 +63,34 @@ public class RepositoryExtraService {
         return updateRepository.findByRepositoryIdOrderByCreatedAtDesc(repositoryId, PageRequest.of(page, size));
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public RepositoryUpdate addUpdate(Long repositoryId, Long authorId, String authorName, String content) {
         RepositoryUpdate update = new RepositoryUpdate();
         update.setRepositoryId(repositoryId);
         update.setAuthorId(authorId);
         update.setAuthorName(authorName);
         update.setContent(content);
-        return updateRepository.save(update);
+        RepositoryUpdate saved = updateRepository.save(update);
+
+        ResearchRepository repo = researchRepositoryRepo.findById(repositoryId).orElse(null);
+        if (repo != null) {
+            edu.cit.uy.researchcenter.features.auth.model.User actor = repo.getOwner(); // Just a fallback if needed
+            if (actor.getId().equals(authorId)) {
+                actor = repo.getOwner();
+            } else {
+                actor = edu.cit.uy.researchcenter.features.auth.model.User.builder()
+                        .id(authorId)
+                        .firstName(authorName.split(" ")[0])
+                        .lastName(authorName.substring(authorName.indexOf(" ") + 1))
+                        .build();
+            }
+            activityService.logActivity(actor, "posted an update", "UPDATE", saved.getId(), "Repository Update", repo, null, null);
+        }
+
+        return saved;
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public RepositoryUpdate editUpdate(Long updateId, Long userId, String content) {
         RepositoryUpdate update = updateRepository.findById(updateId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Update not found"));
@@ -81,6 +101,7 @@ public class RepositoryExtraService {
         return updateRepository.save(update);
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public void deleteUpdate(Long updateId, Long userId, Long repositoryId) {
         RepositoryUpdate update = updateRepository.findById(updateId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Update not found"));

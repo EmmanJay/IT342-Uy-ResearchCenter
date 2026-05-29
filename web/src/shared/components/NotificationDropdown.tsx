@@ -93,6 +93,7 @@ const NotificationDropdown = () => {
       const type = activity.targetType || '';
       if (type.includes('MATERIAL')) tab = 'materials';
       else if (type.includes('REQUEST')) tab = 'requests';
+      else if (type.includes('UPDATE')) tab = 'updates';
       else if (type.includes('MEMBER') || type.includes('JOINED') || type.includes('LEFT') || type.includes('INVIT')) tab = 'members';
       
       navigate(`/repositories/${activity.repositoryId}`, { state: { activeTab: tab } });

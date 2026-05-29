@@ -19,7 +19,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
     Page<Activity> findByRepositoryIdAndTargetTypeNotOrderByCreatedAtDesc(Long repositoryId, String targetType, Pageable pageable);
 
     // Notifications for a user (actions targeting them, OR actions in their repos done by OTHERS)
-    @org.springframework.data.jpa.repository.Query("SELECT a FROM Activity a WHERE (a.targetUserId = :userId OR a.repositoryId IN (SELECT rm.repository.id FROM RepositoryMember rm WHERE rm.user.id = :userId)) AND (a.userId != :userId OR a.userId IS NULL) ORDER BY a.createdAt DESC")
+    @org.springframework.data.jpa.repository.Query("SELECT a FROM Activity a WHERE (a.targetUserId = :userId OR a.repositoryId IN (SELECT rm.repository.id FROM RepositoryMember rm WHERE rm.user.id = :userId AND rm.status = 'ACCEPTED')) AND (a.userId != :userId OR a.userId IS NULL) ORDER BY a.createdAt DESC")
     Page<Activity> findNotificationsForUser(@org.springframework.data.repository.query.Param("userId") Long userId, Pageable pageable);
 
     // Admin notifications (all actions EXCEPT the admin's own actions)

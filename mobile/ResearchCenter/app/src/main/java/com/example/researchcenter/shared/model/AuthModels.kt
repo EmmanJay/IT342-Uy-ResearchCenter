@@ -33,6 +33,10 @@ data class UpdateProfileRequest(
     val profilePicture: String? = null
 )
 
+data class RefreshTokenRequest(
+    val refreshToken: String
+)
+
 /** @deprecated Legacy helper for ApiClient */
 data class LoginResponse(
     @com.google.gson.annotations.SerializedName("accessToken") val accessToken: String,
@@ -43,12 +47,12 @@ data class ApiResponse<T>(
     val success: Boolean,
     val data: T?,
     val error: ApiError?,
-    val timestamp: String
+    val timestamp: String? = null
 )
 
 data class ApiError(
-    val code: String,
-    val message: String
+    val code: String?,
+    val message: String?
 )
 
 data class AuthData(
@@ -62,5 +66,7 @@ data class UserData(
     val email: String,
     val firstname: String,
     val lastname: String,
-    val role: String
+    val role: String,
+    val profilePicture: String? = null,
+    val createdAt: String? = null
 )

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { axiosClient } from '../../shared/api/axiosClient';
+import { SessionManager } from '../../shared/auth/sessionManager';
 import { formatDate } from '../../shared/utils/dateUtils';
 import { Activity, BookOpen, UserPlus, FolderPlus, CheckCircle, XCircle, Trash2, LogOut } from 'lucide-react';
 import { useWebSocket } from '../../shared/context/WebSocketProvider';
@@ -35,6 +36,9 @@ export function ActivityFeed({ repositoryId, fullPage = false, limit = 10, hideH
   const hasFetchedRef = useRef(false);
   const { lastMessage } = useWebSocket();
   const pageSize = limit;
+  
+  const user = SessionManager.getUser();
+  const userFullName = `${user?.firstname || ''} ${user?.lastname || ''}`.trim();
 
   const fetchActivities = useCallback(async () => {
     if (endpointUnavailableRef.current) return;
@@ -216,6 +220,7 @@ export function ActivityFeed({ repositoryId, fullPage = false, limit = 10, hideH
                           {formatActivityMessage(activity, {
                             includeActor: true,
                             selfLabel: repositoryId ? 'Someone' : 'You',
+                            isCurrentUser: activity.actorName === userFullName
                           })}
                         </p>
                       </div>

@@ -1,6 +1,6 @@
 package com.example.researchcenter.features.auth
 
-import android.app.Activity
+import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -9,7 +9,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import com.example.researchcenter.R
-import com.example.researchcenter.features.dashboard.DashboardActivity
+import com.example.researchcenter.features.main.MainActivity
 import com.example.researchcenter.shared.api.RetrofitClient
 import com.example.researchcenter.shared.api.AuthApi
 import com.example.researchcenter.shared.auth.AuthSessionHelper
@@ -27,7 +27,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
-class LoginActivity : Activity() {
+class LoginActivity : AppCompatActivity() {
 
     private lateinit var googleSignInClient: GoogleSignInClient
 
@@ -93,9 +93,7 @@ class LoginActivity : Activity() {
                     if (response.isSuccessful && wrapper?.success == true && wrapper.data != null) {
                         runOnUiThread {
                             AuthSessionHelper.saveAuth(this@LoginActivity, wrapper.data)
-                            startActivity(Intent(this@LoginActivity, DashboardActivity::class.java))
-                            finish()
-                            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                            proceedToNextScreen()
                         }
                     } else {
                         val errorMsg = wrapper?.error?.code ?: "Invalid email or password."
@@ -151,8 +149,7 @@ class LoginActivity : Activity() {
                             btnLogin.text = "Sign In"
                             if (response.isSuccessful && wrapper?.success == true && wrapper.data != null) {
                                 AuthSessionHelper.saveAuth(this@LoginActivity, wrapper.data)
-                                startActivity(Intent(this@LoginActivity, DashboardActivity::class.java))
-                                finish()
+                                proceedToNextScreen()
                             } else {
                                 Toast.makeText(this@LoginActivity, "Google sign-in failed", Toast.LENGTH_LONG).show()
                             }
@@ -170,6 +167,20 @@ class LoginActivity : Activity() {
                 Toast.makeText(this, "Google Sign-In failed", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun proceedToNextScreen() {
+        val inviteToken = intent?.getStringExtra("INVITE_TOKEN")
+        val nextIntent = if (!inviteToken.isNullOrBlank()) {
+            Intent(this, com.example.researchcenter.features.invite.AcceptInviteActivity::class.java).apply {
+                putExtra("token", inviteToken)
+            }
+        } else {
+            Intent(this, MainActivity::class.java)
+        }
+        startActivity(nextIntent)
+        finish()
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 
     @Deprecated("Deprecated in Java")

@@ -10,7 +10,7 @@ import ConfirmModal from '../../shared/components/ConfirmModal';
 import { useWebSocket } from '../../shared/context/WebSocketProvider';
 import LoadingScreen from '../../shared/components/LoadingScreen';
 
-let dashboardCache: Repository[] | null = null;
+
 
 const getResponseStatus = (error: unknown) => {
   return (error as { response?: { status?: number } }).response?.status;
@@ -20,8 +20,8 @@ const DashboardPage = () => {
   const navigate = useNavigate();
   const user = SessionManager.getUser();
   const { subscribe, unsubscribe, lastMessage } = useWebSocket();
-  const [repositories, setRepositories] = useState<Repository[]>(dashboardCache || []);
-  const [loading, setLoading] = useState(!dashboardCache);
+  const [repositories, setRepositories] = useState<Repository[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newRepoName, setNewRepoName] = useState('');
@@ -56,9 +56,8 @@ const DashboardPage = () => {
 
   const fetchRepositories = async () => {
     try {
-      if (!dashboardCache) setLoading(true);
+      setLoading(true);
       const repos = await repositoryApi.getAll();
-      dashboardCache = repos;
       setRepositories(repos);
     } catch (error: unknown) {
       const status = getResponseStatus(error);
@@ -252,8 +251,9 @@ const DashboardPage = () => {
             )}
 
             {repositories.length === 0 && !loading && (
-              <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-                <p className="text-gray-500 mb-4">No research repositories yet. Create one to get started!</p>
+              <div className="text-center py-16 bg-white rounded-lg border border-gray-200 shadow-sm">
+                <h3 className="text-lg font-medium text-gray-900">No repositories yet</h3>
+                <p className="text-gray-500 mt-1">Create your first repository to start managing your research</p>
               </div>
             )}
             </div>

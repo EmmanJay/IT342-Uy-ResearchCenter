@@ -7,6 +7,7 @@ import { requestApi } from '../request/api/requestApi';
 import type { RepositoryDetail, MaterialRequest } from '../../shared/types';
 import Navbar from '../../shared/components/Navbar';
 import Breadcrumbs from '../../shared/components/Breadcrumbs';
+import UserAvatar from '../../shared/components/UserAvatar';
 import { ActivityFeed } from '../activity/ActivityFeed';
 import ConfirmModal from '../../shared/components/ConfirmModal';
 import { repositoryExtraApi } from './api/repositoryExtraApi';
@@ -23,7 +24,8 @@ const RepositoryDetailPage = () => {
   const [materials, setMaterials] = useState<any[]>([]);
   const [requests, setRequests] = useState<MaterialRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isbnCopied, setIsbnCopied] = useState(false);
 
   const [activeTab, setActiveTab] = useState<'materials' | 'bookmarks' | 'requests' | 'members' | 'updates' | 'activity'>(
     (location.state?.activeTab as any) || 'materials'
@@ -49,6 +51,7 @@ const RepositoryDetailPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrder, setSortOrder] = useState<'latest' | 'oldest'>('latest');
   const [isRepoDescExpanded, setIsRepoDescExpanded] = useState(false);
+  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
 
   // New Features State
   const [materialNote, setMaterialNote] = useState('');
@@ -314,7 +317,7 @@ const RepositoryDetailPage = () => {
       || (activeTags.includes('NO_TAGS') && (!m.tags || m.tags.length === 0))
       || (m.tags || []).some((t: any) => activeTags.includes(t)))
     .filter(m => selectedStatuses.length === 0
-      || selectedStatuses.includes(m.status || m.myStatus))
+      || selectedStatuses.includes(m.myStatus || m.status || 'TO_READ'))
     .filter(m => selectedTypes.length === 0
       || selectedTypes.includes(m.materialType))
     .filter(m => selectedUploaders.length === 0
@@ -389,12 +392,30 @@ const RepositoryDetailPage = () => {
         setToast({ msg: 'Already a member.', type: 'error' });
         return;
       }
-      await repositoryApi.inviteMember(id, { email });
+
+      // Optimistic update
+      const tempMember = {
+        id: String(Date.now()),
+        userId: 'temp-' + Date.now() as any,
+        name: searchResult?.firstname ? `${searchResult.firstname} ${searchResult.lastname}` : email,
+        firstname: searchResult?.firstname || '',
+        lastname: searchResult?.lastname || '',
+        email,
+        role: 'MEMBER',
+        roleInRepo: 'MEMBER' as 'OWNER' | 'MEMBER',
+        status: 'PENDING' as const,
+        joinedAt: new Date().toISOString()
+      };
+      setRepo(prev => prev ? { ...prev, members: [...prev.members, tempMember] } : prev);
       setInviteEmail('');
       setSearchResult(null);
+
+      await repositoryApi.inviteMember(id, { email });
       await fetchRepository();
       setToast({ msg: 'Invite sent successfully!', type: 'success' });
     } catch (err: any) {
+      // Revert optimistic update
+      setRepo(prev => prev ? { ...prev, members: prev.members.filter(m => m.email !== email) } : prev);
       setToast({ msg: err?.response?.data?.message || 'Failed to send invite.', type: 'error' });
     }
   };
@@ -438,16 +459,7 @@ const RepositoryDetailPage = () => {
           <h1 className="text-3xl font-bold text-gray-900">{repo.name}</h1>
           {!isOwner && (
             <button
-              onClick={async () => {
-                if (confirm('Are you sure you want to leave this repository?')) {
-                  try {
-                    await repositoryApi.leaveRepository(id!);
-                    navigate('/dashboard');
-                  } catch (e: any) {
-                    setToast({ msg: e?.response?.data?.message || 'Failed to leave', type: 'error' });
-                  }
-                }
-              }}
+              onClick={() => setIsLeaveModalOpen(true)}
               className="px-3 py-1.5 border border-red-200 text-red-600 rounded-md text-sm hover:bg-red-50 font-medium cursor-pointer"
             >
               Leave Repository
@@ -836,8 +848,8 @@ const RepositoryDetailPage = () => {
 
             <div className="grid gap-4 relative z-0 max-h-[calc(100vh-280px)] overflow-y-auto pr-2 pb-2">
               {paginatedMaterials.map((material) => (
-                <div key={material.id} className="relative bg-white p-4 pr-20 rounded-lg border border-green-600 flex-shrink-0">
-                  <div className="absolute right-3 top-3 flex items-center gap-1">
+                <div key={material.id} className={`relative bg-white p-4 pr-20 rounded-lg border flex-shrink-0 group hover:shadow-md transition-all duration-200 ${material.bookmarked ? 'border-green-600' : 'border-gray-200'}`}>
+                  <div className="absolute right-3 top-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={async (e) => {
                         e.stopPropagation();
@@ -1063,12 +1075,22 @@ const RepositoryDetailPage = () => {
                         onClick={() => {
                           const isbnVal = selectedMaterial.isbn || selectedMaterial.metadata?.isbn;
                           navigator.clipboard.writeText(isbnVal);
-                          alert('ISBN copied to clipboard!');
+                          setIsbnCopied(true);
+                          setTimeout(() => setIsbnCopied(false), 2000);
                         }}
-                        className="text-sm px-3 py-1 bg-green-50 text-green-700 rounded-md hover:bg-green-100 font-medium cursor-pointer flex items-center gap-1.5"
+                        className="text-sm px-3 py-1.5 bg-green-50 text-green-700 rounded-md hover:bg-green-100 font-medium cursor-pointer flex items-center gap-1.5 transition-colors"
                       >
-                        ISBN: {selectedMaterial.isbn || selectedMaterial.metadata?.isbn}
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        {isbnCopied ? (
+                          <>
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                            Copied!
+                          </>
+                        ) : (
+                          <>
+                            ISBN: {selectedMaterial.isbn || selectedMaterial.metadata?.isbn}
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                          </>
+                        )}
                       </button>
                     )}
                     {selectedMaterial.fileUrl && (
@@ -1133,18 +1155,35 @@ const RepositoryDetailPage = () => {
               <div className="mt-6 pt-4 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                   <label className="text-sm font-medium text-gray-700 font-semibold">My Status:</label>
-                  <select id="myStatus" defaultValue={selectedMaterial.myStatus || selectedMaterial.status} className="px-3 py-2 border border-gray-300 rounded-md text-sm bg-white min-w-[140px]" onChange={(e) => setSelectedMaterial({...selectedMaterial, myStatus: e.target.value})}>
+                  <select 
+                    id="myStatus" 
+                    value={selectedMaterial.myStatus || selectedMaterial.status || 'TO_READ'} 
+                    className="px-3 py-2 border border-gray-300 rounded-md text-sm bg-white min-w-[140px] focus:ring-green-500 focus:border-green-500" 
+                    onChange={async (e) => {
+                      const newStatus = e.target.value;
+                      const targetId = selectedMaterial.id;
+                      const prevMaterials = [...materials];
+                      const prevSelected = selectedMaterial;
+
+                      // Optimistic UI updates
+                      setSelectedMaterial({...selectedMaterial, myStatus: newStatus});
+                      setMaterials(prev => prev.map(m => m.id === targetId ? { ...m, myStatus: newStatus } : m));
+
+                      try {
+                        await materialApi.updateStatus(targetId, newStatus);
+                        // fetch repository silently in the background
+                        fetchRepository();
+                      } catch (err: any) { 
+                        setSelectedMaterial(prevSelected);
+                        setMaterials(prevMaterials);
+                        setToast({ msg: 'Failed to update status', type: 'error' }); 
+                      }
+                    }}
+                  >
                     <option value="TO_READ">To Read</option>
                     <option value="IN_PROGRESS">In Progress</option>
                     <option value="COMPLETED">Completed</option>
                   </select>
-                  <button className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium transition-colors cursor-pointer" onClick={async () => {
-                    try {
-                      await materialApi.updateStatus(selectedMaterial.id, selectedMaterial.myStatus || selectedMaterial.status);
-                      await fetchRepository();
-                      setSelectedMaterial(null);
-                    } catch (err: any) { setError('Failed to update status'); }
-                  }}>Update Status</button>
                 </div>
                 <p className="text-xs text-gray-400 font-medium">Added on {new Date(selectedMaterial.createdAt).toLocaleDateString()}</p>
               </div>
@@ -1270,7 +1309,7 @@ const RepositoryDetailPage = () => {
 
             <div className="grid gap-4 relative z-0 max-h-[calc(100vh-280px)] overflow-y-auto pr-2 pb-2">
               {paginatedRequests.map((req) => (
-                <div key={req.id} className="bg-white p-4 rounded-lg border border-gray-200 flex-shrink-0">
+                <div key={req.id} className="bg-white p-4 rounded-lg border border-gray-200 flex-shrink-0 group hover:shadow-md transition-all duration-200">
                   <div className="flex justify-between items-start">
                     <div className="flex-1 pr-4">
                       <h3
@@ -1292,7 +1331,7 @@ const RepositoryDetailPage = () => {
                       </p>
                     </div>
                     {(isOwner || String(req.requesterId) === String(user?.id)) && (
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => setDeleteRequestCandidateId(req.id)}
                           className="p-1 rounded-full text-red-600 hover:text-red-800 transition-colors cursor-pointer"
@@ -1532,12 +1571,12 @@ const RepositoryDetailPage = () => {
                 </div>
               ) : (
                 paginatedUpdates.map((update: any) => (
-                  <div key={update.id} className="relative bg-white p-5 pr-20 rounded-lg border border-gray-200 shadow-sm">
-                    <div className="absolute right-4 top-4 flex items-center gap-1">
+                  <div key={update.id} className="relative bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 group">
+                    <div className="absolute right-4 top-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         {String(update.authorId) === String(user?.id) && (
                           <button
                             onClick={() => { setEditingUpdateId(update.id); setEditingUpdateContent(update.content); }}
-                            className="p-1 rounded-full text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-md text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
                             aria-label="Edit update"
                           >
                             <Pencil className="h-4 w-4" />
@@ -1546,22 +1585,34 @@ const RepositoryDetailPage = () => {
                         {(String(update.authorId) === String(user?.id) || isOwner) && (
                           <button
                             onClick={() => setDeleteUpdateId(update.id)}
-                            className="p-1 rounded-full text-red-600 hover:text-red-800 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-md text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                             aria-label="Delete update"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
                         )}
                     </div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="font-semibold text-gray-900">{update.authorName}</span>
-                      <span className="text-xs text-gray-500">{new Date(update.createdAt).toLocaleDateString()}</span>
+                    <div className="flex items-center gap-4 mb-4">
+                      <UserAvatar name={update.authorName} size="md" />
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-gray-900 tracking-tight">{update.authorName}</span>
+                          {String(update.authorId) === String(repo.ownerId) ? (
+                            <span className="px-2 py-0.5 bg-green-100 text-green-800 text-[10px] font-bold rounded-full uppercase tracking-wider">Owner</span>
+                          ) : (
+                            <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-[10px] font-bold rounded-full uppercase tracking-wider">Member</span>
+                          )}
+                        </div>
+                        <span className="text-xs font-medium text-gray-500">{new Date(update.createdAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                      </div>
                     </div>
                     {editingUpdateId === update.id ? (
-                      <div>
-                        <textarea value={editingUpdateContent} onChange={(e) => setEditingUpdateContent(e.target.value)} className="w-full border border-gray-300 rounded p-2 text-sm mb-2 min-h-[60px]" />
+                      <div className="mt-2">
+                        <textarea value={editingUpdateContent} onChange={(e) => setEditingUpdateContent(e.target.value)} className="w-full border border-gray-300 rounded-lg p-3 text-sm mb-3 min-h-[80px] focus:outline-none focus:ring-2 focus:ring-green-600" />
                         <div className="flex gap-2">
-                          <button onClick={async () => {
+                          <button 
+                            disabled={!editingUpdateContent.trim()}
+                            onClick={async () => {
                             try {
                               const res = await repositoryExtraApi.editUpdate(id!, update.id, editingUpdateContent);
                               if (res.success) {
@@ -1571,12 +1622,12 @@ const RepositoryDetailPage = () => {
                             } catch (e) {
                               setToast({ msg: 'Failed to edit update', type: 'error' });
                             }
-                          }} className="bg-blue-600 text-white px-3 py-1 rounded text-xs cursor-pointer">Save</button>
-                          <button onClick={() => setEditingUpdateId(null)} className="bg-gray-200 text-gray-700 px-3 py-1 rounded text-xs cursor-pointer">Cancel</button>
+                          }} className="bg-green-600 text-white px-4 py-1.5 rounded-md text-sm font-semibold hover:bg-green-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">Save Changes</button>
+                          <button onClick={() => setEditingUpdateId(null)} className="bg-gray-100 text-gray-700 px-4 py-1.5 rounded-md text-sm font-semibold hover:bg-gray-200 transition-colors cursor-pointer">Cancel</button>
                         </div>
                       </div>
                     ) : (
-                      <p className="text-gray-700 text-sm whitespace-pre-wrap">{update.content}</p>
+                      <p className="text-gray-800 text-sm whitespace-pre-wrap leading-relaxed bg-gray-50/50 p-4 rounded-lg border border-gray-50">{update.content}</p>
                     )}
                   </div>
                 ))
@@ -1619,8 +1670,8 @@ const RepositoryDetailPage = () => {
           <div className="space-y-6">
             <div className="grid gap-4 relative z-0 max-h-[calc(100vh-280px)] overflow-y-auto pr-2 pb-2">
               {paginatedBookmarks.length > 0 ? paginatedBookmarks.map(material => (
-              <div key={material.id} className="relative bg-white p-4 pr-20 rounded-lg border border-green-600 flex-shrink-0 shadow-sm hover:shadow transition-shadow">
-                  <div className="absolute right-3 top-3 flex items-center gap-1">
+              <div key={material.id} className="relative bg-white p-4 pr-20 rounded-lg border border-green-600 flex-shrink-0 group hover:shadow-md transition-all duration-200">
+                  <div className="absolute right-3 top-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={async (e) => {
                         e.stopPropagation();
@@ -1785,17 +1836,23 @@ const RepositoryDetailPage = () => {
                 </div>
               )}
 
-              {selectedRequest.status === 'FULFILLED' && selectedRequest.materialId && !isEditingReqMaterial && (
+              {selectedRequest.status === 'FULFILLED' && !isEditingReqMaterial && (
                 <div>
                   <div className="flex justify-between items-center mb-2">
                     <h3 className="text-sm font-semibold text-gray-900">Attached Material</h3>
                   </div>
-                  {materials.find(m => m.id === selectedRequest.materialId) ? (
-                    <div className="bg-white p-3 border border-emerald-100 rounded-lg flex justify-between items-center cursor-pointer hover:border-green-300" onClick={() => { setSelectedRequest(null); setSelectedMaterial(materials.find(m => m.id === selectedRequest.materialId)); setIsEditingReqMaterial(false); }}>
-                      <span className="font-medium text-green-700 hover:underline truncate">{materials.find(m => m.id === selectedRequest.materialId)?.title}</span>
-                      <span className="text-xs text-gray-500 ml-2 flex-shrink-0">{materials.find(m => m.id === selectedRequest.materialId)?.materialType}</span>
+                  {selectedRequest.materialId ? (
+                    materials.find(m => m.id === selectedRequest.materialId) ? (
+                      <div className="bg-white p-3 border border-emerald-100 rounded-lg flex justify-between items-center cursor-pointer hover:border-green-300" onClick={() => { setSelectedRequest(null); setSelectedMaterial(materials.find(m => m.id === selectedRequest.materialId)); setIsEditingReqMaterial(false); }}>
+                        <span className="font-medium text-green-700 hover:underline truncate">{materials.find(m => m.id === selectedRequest.materialId)?.title}</span>
+                        <span className="text-xs text-gray-500 ml-2 flex-shrink-0">{materials.find(m => m.id === selectedRequest.materialId)?.materialType}</span>
+                      </div>
+                    ) : <span className="text-sm text-gray-500">Material loaded externally or unavailable.</span>
+                  ) : (
+                    <div className="bg-red-50 p-3 border border-red-100 rounded-lg flex justify-between items-center text-red-700 text-sm font-medium">
+                      Material Deleted
                     </div>
-                  ) : <span className="text-sm text-gray-500">Material loaded externally or unavailable.</span>}
+                  )}
                 </div>
               )}
 
@@ -1858,20 +1915,6 @@ const RepositoryDetailPage = () => {
                   Cancel
                 </button>
               )}
-              {/* Temporarily disabled: Edit Attached button (re-enable when editing workflow is ready)
-              {selectedRequest.status === 'FULFILLED' && (String(selectedRequest.fulfilledBy) === String(user?.id)) && !isEditingReqMaterial && (
-                <button
-                  onClick={() => {
-                    // Initialize fulfillMaterialId with current material when entering edit mode
-                    setFulfillMaterialId(String(selectedRequest.materialId || ''));
-                    setIsEditingReqMaterial(true);
-                  }}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md text-sm font-medium transition-colors cursor-pointer"
-                >
-                  Edit Attached
-                </button>
-              )}
-              */}
             </div>
           </div>
         </div>
@@ -1892,6 +1935,23 @@ const RepositoryDetailPage = () => {
           }
         }}
         onCancel={() => setDeleteUpdateId(null)}
+      />
+
+      <ConfirmModal
+        isOpen={isLeaveModalOpen}
+        title="Leave Repository"
+        message="Are you sure you want to leave this repository?"
+        onConfirm={async () => {
+          try {
+            await repositoryApi.leaveRepository(id!);
+            navigate('/dashboard');
+          } catch (e: any) {
+            setToast({ msg: e?.response?.data?.message || 'Failed to leave', type: 'error' });
+          } finally {
+            setIsLeaveModalOpen(false);
+          }
+        }}
+        onCancel={() => setIsLeaveModalOpen(false)}
       />
     </div>
   );

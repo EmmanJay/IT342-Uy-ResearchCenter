@@ -41,7 +41,7 @@ axiosClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    if (status === 401 || status === 403) {
+    if (status === 401) {
       // Only redirect to login if we're not already on the login page
       if (window.location.pathname !== '/login') {
         SessionManager.clear();

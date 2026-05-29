@@ -24,6 +24,21 @@ class UserAvatarView @JvmOverloads constructor(
         ivAvatarImage = findViewById(R.id.ivAvatarImage)
     }
 
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        val card = findViewById<com.google.android.material.card.MaterialCardView>(R.id.avatarCard)
+        if (card != null) {
+            card.radius = (w.coerceAtMost(h) / 2).toFloat()
+        }
+        
+        val sizeDp = w / resources.displayMetrics.density
+        if (sizeDp > 60) {
+            tvInitials.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 28f)
+        } else {
+            tvInitials.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14f)
+        }
+    }
+
     fun setUser(name: String?, email: String?, imageUrl: String? = null) {
         if (!imageUrl.isNullOrEmpty()) {
             ivAvatarImage.visibility = View.VISIBLE

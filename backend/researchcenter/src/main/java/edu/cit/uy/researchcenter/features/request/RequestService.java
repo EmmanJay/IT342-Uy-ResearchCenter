@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class RequestService {
 
     private final MaterialRequestRepo requestRepo;
@@ -148,9 +149,10 @@ public class RequestService {
         MaterialRequest req = requestRepo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Request not found"));
 
-        // Only the requester (who created the request) can delete it
-        if (!req.getRequester().getId().equals(callerId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the request creator can delete this request");
+        boolean isOwner = req.getRepository().getOwner().getId().equals(callerId);
+        // Only the requester (who created the request) or the repository owner can delete it
+        if (!isOwner && !req.getRequester().getId().equals(callerId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the request creator or repository owner can delete this request");
         }
 
         requestRepo.deleteById(id);

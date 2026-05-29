@@ -187,7 +187,10 @@
                         android:textColor="@color/error_red"
                         app:strokeColor="@color/red_200"
                         app:backgroundTint="@color/red_50"
-                        app:cornerRadius="@dimen/radius_md" />
+                        app:cornerRadius="@dimen/radius_md"
+                        app:icon="@drawable/ic_logout"
+                        app:iconSize="18dp"
+                        app:iconTint="@color/error_red" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

@@ -268,6 +268,8 @@ class DashboardActivity : AppCompatActivity() {
         val view = LayoutInflater.from(this).inflate(R.layout.dialog_create_repository, null)
         val etName = view.findViewById<TextInputEditText>(R.id.et_repo_name)
         val etDesc = view.findViewById<TextInputEditText>(R.id.et_repo_desc)
+        view.findViewById<View>(R.id.tv_title)?.visibility = View.GONE
+        view.findViewById<View>(R.id.layout_buttons)?.visibility = View.GONE
 
         MaterialAlertDialogBuilder(this)
             .setTitle("Create Repository")
@@ -289,6 +291,8 @@ class DashboardActivity : AppCompatActivity() {
         val view = LayoutInflater.from(this).inflate(R.layout.dialog_create_repository, null)
         val etName = view.findViewById<TextInputEditText>(R.id.et_repo_name)
         val etDesc = view.findViewById<TextInputEditText>(R.id.et_repo_desc)
+        view.findViewById<View>(R.id.tv_title)?.visibility = View.GONE
+        view.findViewById<View>(R.id.layout_buttons)?.visibility = View.GONE
         etName.setText(repo.name)
         etDesc.setText(repo.description ?: "")
 

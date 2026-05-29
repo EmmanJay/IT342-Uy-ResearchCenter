@@ -42,28 +42,28 @@ export default function AdminStatsPage() {
   const statCards = [
     {
       title: 'Total Users',
-      value: stats.totalUsers,
+      value: stats.totalUsers || 0,
       icon: Users,
       color: 'bg-blue-100 text-blue-600',
       bgColor: 'bg-blue-50'
     },
     {
       title: 'Total Repositories',
-      value: stats.totalRepositories,
+      value: stats.totalRepositories || 0,
       icon: BookOpen,
       color: 'bg-green-100 text-green-600',
       bgColor: 'bg-green-50'
     },
     {
       title: 'Total Materials',
-      value: stats.totalMaterials,
+      value: stats.totalMaterials || 0,
       icon: FileText,
       color: 'bg-purple-100 text-purple-600',
       bgColor: 'bg-purple-50'
     },
     {
       title: 'Total Requests',
-      value: stats.totalRequests,
+      value: stats.totalRequests || 0,
       icon: ClipboardList,
       color: 'bg-orange-100 text-orange-600',
       bgColor: 'bg-orange-50'
@@ -105,16 +105,16 @@ export default function AdminStatsPage() {
           <div>
             <p className="font-medium text-gray-700 mb-2">Research Community</p>
             <ul className="list-disc list-inside space-y-1 text-gray-600">
-              <li>{stats.totalUsers} registered users</li>
-              <li>{stats.totalRepositories} active repositories</li>
-              <li>{stats.totalMaterials} research materials shared</li>
-              <li>{stats.totalRequests} materials requested</li>
+              <li>{stats.totalUsers || 0} registered users</li>
+              <li>{stats.totalRepositories || 0} active repositories</li>
+              <li>{stats.totalMaterials || 0} research materials shared</li>
+              <li>{stats.totalRequests || 0} materials requested</li>
             </ul>
           </div>
           <div>
             <p className="font-medium text-gray-700 mb-2">Quick Facts</p>
             <ul className="list-disc list-inside space-y-1 text-gray-600">
-              <li>Average materials per repository: {(stats.totalMaterials / Math.max(stats.totalRepositories, 1)).toFixed(1)}</li>
+              <li>Average materials per repository: {((stats.totalMaterials || 0) / Math.max((stats.totalRepositories || 0), 1)).toFixed(1)}</li>
               <li>Active platform with growing community</li>
               <li>Monitor activity regularly for moderation</li>
             </ul>

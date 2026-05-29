@@ -4,51 +4,78 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@color/surface_white"
-    android:padding="@dimen/space_6">
+    android:padding="24dp"
+    android:background="@color/surface_white">
 
-    <TextView 
-        android:layout_width="match_parent" 
-        android:layout_height="wrap_content"
-        android:text="Name *" 
-        android:textColor="@color/text_primary" 
-        android:textStyle="bold"
-        android:textSize="@dimen/text_sm" 
-        android:layout_marginBottom="@dimen/space_1" />
-        
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/et_repo_name"
+    <!-- Drag Handle -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/badge_bg" />
+
+    <TextView
+        android:id="@+id/tv_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:paddingHorizontal="12dp"
-        android:background="@drawable/bg_dialog_rounded"
-        android:hint="Repository name"
-        android:textSize="@dimen/text_sm"
-        android:layout_marginBottom="@dimen/space_4" />
-
-    <TextView 
-        android:layout_width="match_parent" 
-        android:layout_height="wrap_content"
-        android:text="Description" 
-        android:textColor="@color/text_primary" 
+        android:text="@string/create_repository"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:textSize="@dimen/text_sm" 
-        android:layout_marginBottom="@dimen/space_1" />
-        
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/et_repo_desc"
+        android:textColor="@color/gray_900"
+        android:layout_marginBottom="16dp" />
+
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:paddingHorizontal="12dp"
-        android:background="@drawable/bg_dialog_rounded"
-        android:hint="What is this repository for?"
-        android:textSize="@dimen/text_sm"
-        android:minLines="3"
-        android:gravity="top"
-        android:layout_marginBottom="@dimen/space_6" />
+        android:hint="Name"
+        style="@style/Widget.ResearchCenter.TextInputLayout"
+        android:layout_marginBottom="12dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_repo_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Description"
+        style="@style/Widget.ResearchCenter.TextInputLayout"
+        android:layout_marginBottom="16dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_repo_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:minLines="3"
+            android:gravity="top" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_cancel"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:text="@string/cancel"
+            android:textAllCaps="false"
+            style="@style/Widget.ResearchCenter.Button.Outlined"
+            android:layout_marginEnd="8dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_create"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:text="@string/create"
+            android:textAllCaps="false"
+            style="@style/Widget.ResearchCenter.Button.Green" />
+    </LinearLayout>
 </LinearLayout>

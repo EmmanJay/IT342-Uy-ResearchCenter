@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { SessionManager } from '../../shared/auth/sessionManager';
 import Navbar from '../../shared/components/Navbar';
-import { Users, FolderGit2, ShieldAlert, FileText, BarChart3, ClipboardList, Activity } from 'lucide-react';
+import { Users, FolderGit2, ShieldAlert, FileText, BarChart3, ClipboardList, Activity, MessageSquare } from 'lucide-react';
 
 export function AdminLayout() {
   const user = SessionManager.getUser();
@@ -24,10 +24,11 @@ export function AdminLayout() {
 
   const navigation = [
     { name: 'Dashboard', href: '/admin/stats', icon: BarChart3 },
-    { name: 'Users Management', href: '/admin/users', icon: Users },
+    { name: 'Users', href: '/admin/users', icon: Users },
     { name: 'Repositories', href: '/admin/repositories', icon: FolderGit2 },
     { name: 'Requests', href: '/admin/requests', icon: ClipboardList },
-    { name: 'Content Moderation', href: '/admin/materials', icon: FileText },
+    { name: 'Materials', href: '/admin/materials', icon: FileText },
+    { name: 'Messages', href: '/admin/announcements', icon: MessageSquare },
     { name: 'Activities', href: '/admin/activity', icon: Activity },
   ];
 

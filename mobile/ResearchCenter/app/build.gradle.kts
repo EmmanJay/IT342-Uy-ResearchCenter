@@ -11,8 +11,8 @@ val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
     localProperties.load(localPropertiesFile.inputStream())
 }
-val baseUrl = localProperties.getProperty("BASE_URL", "http://127.0.0.1:8080/api/v1/")
-val wsUrl = localProperties.getProperty("WS_URL", "ws://127.0.0.1:8080/ws/notifications/")
+val baseUrl = localProperties.getProperty("BASE_URL", "http://10.0.2.2:8080/api/v1/")
+val wsUrl = localProperties.getProperty("WS_URL", "ws://10.0.2.2:8080/ws/notifications/")
 
 
 android {
@@ -65,14 +65,15 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.0")
 
     // UI Components
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.11.0")
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation("androidx.viewpager2:viewpager2:1.1.0")
 
     // OkHttp for API calls
-    implementation("com.squareup.okhttp3:okhttp:4.11.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -87,16 +88,17 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
 
     // Google Sign-In
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
-
-    // Material Design
-    implementation("com.google.android.material:material:1.11.0")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.0")
 
     // Security Crypto
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
+
+    // Image Loading
+    implementation("io.coil-kt:coil:2.6.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
