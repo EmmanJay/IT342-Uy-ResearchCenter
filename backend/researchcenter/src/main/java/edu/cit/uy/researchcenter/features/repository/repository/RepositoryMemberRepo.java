@@ -14,6 +14,8 @@ public interface RepositoryMemberRepo extends JpaRepository<RepositoryMember, Lo
 
     Optional<RepositoryMember> findByRepositoryIdAndUserId(Long repositoryId, Long userId);
 
+    Optional<RepositoryMember> findByInviteToken(String inviteToken);
+
     boolean existsByRepositoryIdAndUserId(Long repositoryId, Long userId);
 
     // All repos a user is a member of (not owner)

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -33,6 +34,10 @@ public class AuthController {
         try {
             AuthResponse response = googleAuthService.authenticateWithGoogle(request.getIdToken());
             return ResponseEntity.ok(ApiResponse.success(response));
+        } catch (ResponseStatusException ex) {
+            String code = ex.getStatusCode().value() == HttpStatus.FORBIDDEN.value() ? "AUTH-003" : "AUTH-005";
+            return ResponseEntity.status(ex.getStatusCode())
+                    .body(ApiResponse.error(code, ex.getReason()));
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.error("AUTH-005", ex.getMessage()));

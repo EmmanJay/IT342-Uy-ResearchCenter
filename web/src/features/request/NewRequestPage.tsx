@@ -26,9 +26,10 @@ const NewRequestPage = () => {
 
     try {
       setLoading(true);
-      await requestApi.create({ title, description, repositoryId: id! });
-      navigate(`/repositories/${id}`, { state: { activeTab: 'requests', isOwner } });
-    } catch (err: any) {
+      const createdRequest = await requestApi.create({ title, description, repositoryId: id! });
+      navigate(`/repositories/${id}`, { state: { activeTab: 'requests', isOwner, createdRequest } });
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
       setError(err.response?.data?.message || 'Failed to create request');
     } finally {
       setLoading(false);

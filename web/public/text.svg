@@ -1,0 +1,11 @@
+<svg width="760" height="120" viewBox="0 0 760 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="word" x1="0" y1="40" x2="742" y2="95" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1B5E20"/>
+      <stop offset="0.58" stop-color="#2E7D32"/>
+      <stop offset="1" stop-color="#4CAF50"/>
+    </linearGradient>
+  </defs>
+  <text x="380" y="78" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="82" font-weight="800" fill="url(#word)">ResearchCenter</text>
+  <rect x="353" y="102" width="54" height="8" rx="2" fill="#4CAF50"/>
+</svg>

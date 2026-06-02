@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class RequestService {
 
     private final MaterialRequestRepo requestRepo;
@@ -29,6 +30,7 @@ public class RequestService {
     private final RepositoryMemberRepo memberRepo;
     private final MaterialRepo materialRepo;
     private final UserRepository userRepository;
+    private final edu.cit.uy.researchcenter.features.activity.service.ActivityService activityService;
 
     // ── Create request ────────────────────────────────────────────────────
     @Transactional
@@ -47,7 +49,10 @@ public class RequestService {
                 .description(dto.getDescription())
                 .build();
 
-        return toResponse(requestRepo.save(req));
+        req = requestRepo.save(req);
+        activityService.logActivity(requester, "requested a material", "REQUEST", req.getId(), req.getTitle(), repo, null, null);
+
+        return toResponse(req);
     }
 
     // ── Get by repo ───────────────────────────────────────────────────────
@@ -107,7 +112,10 @@ public class RequestService {
         req.setMaterial(material);
         req.setFulfilledBy(fulfiller);
 
-        return toResponse(requestRepo.save(req));
+        req = requestRepo.save(req);
+        activityService.logActivity(fulfiller, "fulfilled a request", "REQUEST", req.getId(), req.getTitle(), req.getRepository(), req.getRequester().getId(), null);
+
+        return toResponse(req);
     }
 
     // ── Close request ─────────────────────────────────────────────────────
@@ -141,9 +149,10 @@ public class RequestService {
         MaterialRequest req = requestRepo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Request not found"));
 
-        // Only the requester (who created the request) can delete it
-        if (!req.getRequester().getId().equals(callerId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the request creator can delete this request");
+        boolean isOwner = req.getRepository().getOwner().getId().equals(callerId);
+        // Only the requester (who created the request) or the repository owner can delete it
+        if (!isOwner && !req.getRequester().getId().equals(callerId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the request creator or repository owner can delete this request");
         }
 
         requestRepo.deleteById(id);

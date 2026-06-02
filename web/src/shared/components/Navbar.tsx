@@ -1,40 +1,44 @@
 import { useNavigate } from 'react-router-dom';
 import { SessionManager } from '../auth/sessionManager';
+import AppLogo from './AppLogo';
+import UserAvatar from './UserAvatar';
+import NotificationDropdown from './NotificationDropdown';
 
 const Navbar = () => {
   const navigate = useNavigate();
   const user = SessionManager.getUser();
-  const initials = `${user?.firstname?.[0] || ''}${user?.lastname?.[0] || ''}`.toUpperCase();
 
   const handleLogout = () => {
     SessionManager.clear();
-    navigate('/login');
+    navigate('/login', { replace: true });
   };
 
   return (
     <nav className="bg-white shadow-sm h-14 flex items-center px-6 gap-4 border-b border-gray-200">
       <div className="flex items-center mr-auto overflow-hidden text-sm">
-        <span 
-          onClick={() => navigate('/')} 
-          className="text-green-700 cursor-pointer hover:underline font-bold text-lg flex-shrink-0"
-        >
-          ResearchCenter
-        </span>
+        <button type="button" onClick={() => navigate('/dashboard')} className="cursor-pointer">
+          <AppLogo />
+        </button>
       </div>
+
+      <NotificationDropdown />
 
       <div
         title={user ? `${user.firstname} ${user.lastname}` : 'Profile'}
-        className="w-9 h-9 rounded-full bg-green-700 text-white font-bold text-sm flex items-center justify-center cursor-pointer"
+        onClick={() => navigate('/profile')}
+        className="cursor-pointer ml-1"
       >
-        {initials}
+        <UserAvatar
+          name={`${user?.firstname || ''} ${user?.lastname || ''}`}
+          email={user?.email}
+          imageUrl={user?.profilePicture}
+          size="sm"
+          className="hover:bg-green-800 transition-colors"
+        />
       </div>
 
-      <button onClick={handleLogout} className="text-sm text-red-600 hover:underline font-medium ml-2 cursor-pointer">
-        Logout
-      </button>
     </nav>
   );
 };
 
 export default Navbar;
-

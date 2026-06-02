@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Corner Radii -->
+    <dimen name="radius_sm">4dp</dimen>
+    <dimen name="radius_md">6dp</dimen>
+    <dimen name="radius_lg">8dp</dimen>
+    <dimen name="radius_xl">12dp</dimen>
+    <dimen name="radius_2xl">16dp</dimen>
+    <dimen name="radius_full">999dp</dimen>
+    <dimen name="radius_card">8dp</dimen>
+    <dimen name="radius_modal">16dp</dimen>
+    <dimen name="radius_pill">999dp</dimen>
+    <dimen name="radius_button">6dp</dimen>
+
+    <!-- Elevation -->
+    <dimen name="elevation_card">2dp</dimen>
+    <dimen name="elevation_toolbar">2dp</dimen>
+
+    <!-- Navbar -->
+    <dimen name="navbar_height">56dp</dimen>
+
+    <!-- Spacing Ratio / Tokens -->
+    <dimen name="space_1">4dp</dimen>
+    <dimen name="space_2">8dp</dimen>
+    <dimen name="space_3">12dp</dimen>
+    <dimen name="space_4">16dp</dimen>
+    <dimen name="space_5">20dp</dimen>
+    <dimen name="space_6">24dp</dimen>
+    <dimen name="space_8">32dp</dimen>
+    <dimen name="space_10">40dp</dimen>
+    <dimen name="space_12">48dp</dimen>
+    <dimen name="space_16">64dp</dimen>
+
+    <!-- Old Legacy Spacing (Keep for backward compatibility) -->
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_sm">8dp</dimen>
+    <dimen name="spacing_md">12dp</dimen>
+    <dimen name="spacing_base">16dp</dimen>
+    <dimen name="spacing_lg">24dp</dimen>
+    <dimen name="spacing_xl">32dp</dimen>
+
+    <!-- Avatar Sizes -->
+    <dimen name="avatar_small">32dp</dimen>
+    <dimen name="avatar_medium">40dp</dimen>
+    <dimen name="avatar_large">96dp</dimen>
+
+    <!-- Activity Icon Size -->
+    <dimen name="activity_icon_size">32dp</dimen>
+
+    <!-- Button Metrics -->
+    <dimen name="button_min_height">44dp</dimen>
+
+    <!-- Border Thickness -->
+    <dimen name="border_width">1dp</dimen>
+
+    <!-- Typographic / Font Sizes -->
+    <dimen name="text_xs">12sp</dimen>
+    <dimen name="text_sm">14sp</dimen>
+    <dimen name="text_base">16sp</dimen>
+    <dimen name="text_lg">18sp</dimen>
+    <dimen name="text_xl">20sp</dimen>
+    <dimen name="text_2xl">24sp</dimen>
+    <dimen name="text_3xl">30sp</dimen>
+</resources>

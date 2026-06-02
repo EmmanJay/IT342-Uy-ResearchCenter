@@ -12,17 +12,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class RepositoryService {
 
     private final ResearchRepositoryRepo repositoryRepo;
     private final RepositoryMemberRepo memberRepo;
     private final MaterialRepo materialRepo;
     private final UserRepository userRepository;  // from Phase 1
+    private final edu.cit.uy.researchcenter.shared.service.EmailService emailService;
+    private final edu.cit.uy.researchcenter.features.activity.service.ActivityService activityService;
 
     // ── Create ────────────────────────────────────────────────────────────
     @Transactional
@@ -39,8 +45,11 @@ public class RepositoryService {
                 .repository(repo)
                 .user(owner)
                 .roleInRepo("OWNER")
+                .status("ACCEPTED")
                 .build();
         memberRepo.save(ownerMember);
+
+        activityService.logActivity(owner, "created a repository", "REPOSITORY", repo.getId(), repo.getName(), repo, null, null);
 
         return toResponse(repo, owner.getId());
     }
@@ -49,6 +58,7 @@ public class RepositoryService {
     public List<RepositoryResponse> getAllForUser(Long userId) {
         List<RepositoryMember> memberships = memberRepo.findAllByUserId(userId);
         return memberships.stream()
+                .filter(m -> "ACCEPTED".equalsIgnoreCase(m.getStatus()) || "OWNER".equalsIgnoreCase(m.getRoleInRepo()))
                 .map(m -> toResponse(m.getRepository(), userId))
                 .collect(Collectors.toList());
     }
@@ -103,8 +113,59 @@ public class RepositoryService {
                 .repository(repo)
                 .user(invitee)
                 .roleInRepo("MEMBER")
+                .status("PENDING")
+                .inviteToken(UUID.randomUUID().toString())
                 .build();
         memberRepo.save(member);
+
+        User inviter = userRepository.findById(callerId).orElse(null);
+        String inviterName = inviter != null ? (inviter.getFirstName() + " " + inviter.getLastName()) : "Someone";
+        emailService.sendRepositoryInviteEmail(email, repo.getName(), inviterName, member.getInviteToken());
+
+        activityService.logActivity(inviter, "invited a member", "MEMBER", invitee.getId(), invitee.getFirstName() + " " + invitee.getLastName(), repo, invitee.getId(), null);
+    }
+
+    public Map<String, Object> getInvitation(String inviteToken, Long callerId) {
+        RepositoryMember member = memberRepo.findByInviteToken(inviteToken)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Invitation not found"));
+        if (!member.getUser().getId().equals(callerId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Please log in using the invited account");
+        }
+        return Map.of(
+                "repositoryId", member.getRepository().getId(),
+                "repositoryName", member.getRepository().getName(),
+                "status", member.getStatus(),
+                "email", member.getUser().getEmail()
+        );
+    }
+
+    @Transactional
+    public Map<String, Object> acceptInvitation(String inviteToken, Long callerId) {
+        RepositoryMember member = memberRepo.findByInviteToken(inviteToken)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Invitation not found"));
+        if (!member.getUser().getId().equals(callerId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Please log in using the invited account");
+        }
+        member.setStatus("ACCEPTED");
+        member.setInviteToken(null);
+        member.setJoinedAt(Instant.now());
+        memberRepo.save(member);
+
+        return Map.of(
+                "message", "Invitation accepted",
+                "repositoryId", member.getRepository().getId(),
+                "repositoryName", member.getRepository().getName()
+        );
+    }
+
+    @Transactional
+    public void rejectInvitation(String inviteToken, Long callerId) {
+        RepositoryMember member = memberRepo.findByInviteToken(inviteToken)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Invitation not found"));
+        if (!member.getUser().getId().equals(callerId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Please log in using the invited account");
+        }
+        memberRepo.delete(member);
     }
 
     // ── Get members ───────────────────────────────────────────────────────
@@ -116,7 +177,9 @@ public class RepositoryService {
                         .name(buildOwnerName(m.getUser()))
                         .email(m.getUser().getEmail())
                         .role(m.getRoleInRepo())
+                        .status(m.getStatus())
                         .joinedAt(m.getJoinedAt())
+                        .profilePicture(m.getUser().getProfilePicture())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -133,6 +196,17 @@ public class RepositoryService {
         memberRepo.deleteByRepositoryIdAndUserId(repoId, userId);
     }
 
+    @Transactional
+    public void leaveRepository(Long repoId, Long callerId) {
+        ResearchRepository repo = repositoryRepo.findById(repoId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Repository not found"));
+        assertMember(repoId, callerId);
+        if (repo.getOwner().getId().equals(callerId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Owner cannot leave their own repository. Transfer ownership or delete it instead.");
+        }
+        memberRepo.deleteByRepositoryIdAndUserId(repoId, callerId);
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────
     private void assertOwner(ResearchRepository repo, Long callerId) {
         if (!repo.getOwner().getId().equals(callerId)) {
@@ -141,8 +215,11 @@ public class RepositoryService {
     }
 
     private void assertMember(Long repoId, Long callerId) {
-        if (!memberRepo.existsByRepositoryIdAndUserId(repoId, callerId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not a repository member");
+        RepositoryMember member = memberRepo.findByRepositoryIdAndUserId(repoId, callerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Not a repository member"));
+        boolean isLegacyOwner = "OWNER".equalsIgnoreCase(member.getRoleInRepo());
+        if (!"ACCEPTED".equalsIgnoreCase(member.getStatus()) && !isLegacyOwner) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invitation pending. Please accept the invitation first.");
         }
     }
 
@@ -180,7 +257,9 @@ public class RepositoryService {
                         .name(buildOwnerName(m.getUser()))
                         .email(m.getUser().getEmail())
                         .role(m.getRoleInRepo())
+                        .status(m.getStatus())
                         .joinedAt(m.getJoinedAt())
+                        .profilePicture(m.getUser().getProfilePicture())
                         .build())
                 .collect(Collectors.toList());
         base.setMembers(members);

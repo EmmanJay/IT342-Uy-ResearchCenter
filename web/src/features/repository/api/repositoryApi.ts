@@ -3,13 +3,13 @@ import type { Repository, RepositoryDetail, RepositoryMember, CreateRepositoryRe
 
 export const repositoryApi = {
   getAll: async (): Promise<Repository[]> => {
-    const response = await axiosClient.get('/repositories');
-    return response.data.data || [];
+    const res = await axiosClient.get('/repositories');
+    return res.data.data || [];
   },
 
   getById: async (id: string): Promise<RepositoryDetail> => {
-    const response = await axiosClient.get(`/repositories/${id}`);
-    return response.data.data;
+    const res = await axiosClient.get(`/repositories/${id}`);
+    return res.data.data;
   },
 
   create: async (data: CreateRepositoryRequest): Promise<Repository> => {
@@ -32,8 +32,17 @@ export const repositoryApi = {
   },
 
   getMembers: async (repositoryId: string): Promise<RepositoryMember[]> => {
-    const response = await axiosClient.get(`/repositories/${repositoryId}/members`);
+    const res = await axiosClient.get(`/repositories/${repositoryId}/members`);
+    return res.data.data || [];
+  },
+
+  getInvitations: async (repositoryId: string): Promise<any[]> => {
+    const response = await axiosClient.get(`/repositories/${repositoryId}/invitations`);
     return response.data.data || [];
+  },
+
+  revokeInvitation: async (invitationId: string): Promise<void> => {
+    await axiosClient.delete(`/invitations/${invitationId}`);
   },
 
   removeMember: async (repositoryId: string, userId: string): Promise<void> => {
@@ -41,13 +50,41 @@ export const repositoryApi = {
   },
 
   getMaterials: async (repositoryId: string): Promise<any[]> => {
-    const response = await axiosClient.get(`/repositories/${repositoryId}/materials`);
-    return response.data.data || [];
+    const res = await axiosClient.get(`/repositories/${repositoryId}/materials`);
+    return res.data.data || [];
   },
 
   getRequests: async (repositoryId: string): Promise<any[]> => {
-    const response = await axiosClient.get(`/repositories/${repositoryId}/requests`);
+    const res = await axiosClient.get(`/repositories/${repositoryId}/requests`);
+    return res.data.data || [];
+  },
+
+  toggleBookmark: async (repositoryId: string): Promise<boolean> => {
+    const response = await axiosClient.post(`/repositories/${repositoryId}/bookmark`);
+    return Boolean(response.data.data?.bookmarked);
+  },
+
+  getNotes: async (repositoryId: string): Promise<any[]> => {
+    const response = await axiosClient.get(`/repositories/${repositoryId}/notes`);
     return response.data.data || [];
+  },
+
+  addNote: async (repositoryId: string, content: string): Promise<any> => {
+    const response = await axiosClient.post(`/repositories/${repositoryId}/notes`, { content });
+    return response.data.data;
+  },
+
+  updateNote: async (repositoryId: string, noteId: string, content: string): Promise<any> => {
+    const response = await axiosClient.put(`/repositories/${repositoryId}/notes/${noteId}`, { content });
+    return response.data.data;
+  },
+
+  deleteNote: async (repositoryId: string, noteId: string): Promise<void> => {
+    await axiosClient.delete(`/repositories/${repositoryId}/notes/${noteId}`);
+  },
+
+  leaveRepository: async (repositoryId: string): Promise<void> => {
+    await axiosClient.post(`/repositories/${repositoryId}/leave`);
   },
 };
 

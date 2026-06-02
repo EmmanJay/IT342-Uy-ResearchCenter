@@ -4,7 +4,12 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
 const SUPABASE_SERVICE_ROLE = import.meta.env.VITE_SUPABASE_SERVICE_ROLE || '';
 const BUCKET_NAME = import.meta.env.VITE_SUPABASE_BUCKET || 'research-materials';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE);
+const getSupabaseClient = () => {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE) {
+    throw new Error('Supabase upload is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_SERVICE_ROLE to upload PDFs.');
+  }
+  return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE);
+};
 
 export const supabaseUpload = {
   uploadPdfToSupabase: async (file: File, repositoryId: string): Promise<string> => {
@@ -27,6 +32,7 @@ export const supabaseUpload = {
     const filename = `${repositoryId}/${timestamp}-${file.name}`;
 
     try {
+      const supabase = getSupabaseClient();
       // Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from(BUCKET_NAME)
@@ -47,8 +53,48 @@ export const supabaseUpload = {
     }
   },
 
+  uploadImageToSupabase: async (file: File): Promise<string> => {
+    if (!file) {
+      throw new Error('No file provided');
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      // 5MB limit
+      throw new Error('Image size exceeds 5MB limit');
+    }
+
+    if (!file.type.startsWith('image/')) {
+      throw new Error('Only image files are allowed');
+    }
+
+    const timestamp = Date.now();
+    const filename = `avatars/${timestamp}-${file.name}`;
+
+    try {
+      const supabase = getSupabaseClient();
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from(BUCKET_NAME)
+        .upload(filename, file, {
+          upsert: false,
+        });
+
+      if (uploadError) {
+        throw new Error(`Upload failed: ${uploadError.message}`);
+      }
+
+      // Get public URL
+      const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filename);
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Supabase image upload error:', error);
+      throw error;
+    }
+  },
+
   deletePdfFromSupabase: async (publicUrl: string): Promise<void> => {
     try {
+      const supabase = getSupabaseClient();
       // Extract path from public URL
       const url = new URL(publicUrl);
       const path = url.pathname.split(`/storage/v1/object/public/${BUCKET_NAME}/`)[1];

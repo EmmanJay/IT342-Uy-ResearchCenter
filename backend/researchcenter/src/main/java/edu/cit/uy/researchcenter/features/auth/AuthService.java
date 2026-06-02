@@ -68,11 +68,16 @@ public class AuthService {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
+        } catch (org.springframework.security.authentication.LockedException e) {
+            throw new InvalidCredentialsException("Account is currently suspended");
         } catch (BadCredentialsException e) {
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
         User user = userService.findByEmail(request.getEmail());
+        if (Boolean.TRUE.equals(user.getSuspended())) {
+            throw new InvalidCredentialsException("Your account is suspended. Please contact administrator");
+        }
         UserDetails userDetails = userService.loadUserByUsername(user.getEmail());
         String accessToken = jwtService.generateToken(userDetails);
 
@@ -101,6 +106,7 @@ public class AuthService {
                 .firstname(user.getFirstName())
                 .lastname(user.getLastName())
                 .role(user.getRole() != null ? user.getRole().getName() : null)
+                .profilePicture(user.getProfilePicture())
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();

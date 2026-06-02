@@ -200,18 +200,12 @@ const MaterialForm: React.FC<Props> = ({ initial, repositoryId, onSubmit, onCanc
       {type === MaterialType.PDF && (
         <div>
           <label className="block text-sm font-medium text-gray-900 mb-1">Upload PDF {existingFileUrl && !fileDeleted ? '(keeps existing)' : ''}</label>
-          <div className="flex items-center gap-3">
-            <label className="inline-flex items-center px-3 py-2 bg-white border border-gray-300 rounded-md text-sm cursor-pointer hover:bg-gray-50">
-              <input type="file" accept=".pdf" onChange={handleFileChange} className="hidden" />
-              <span className="text-sm text-gray-700">Choose File</span>
-            </label>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">{file ? file.name : (existingFileUrl ? 'Uploaded file present' : 'No file selected')}</span>
-              {(file || (existingFileUrl && !fileDeleted)) && (
-                <button type="button" onClick={() => { setFile(null); setFileDeleted(true); setExistingFileUrl(''); }} className="text-red-600 ml-2 text-sm hover:text-red-800 cursor-pointer">✕</button>
-              )}
-            </div>
-          </div>
+          <input type="file" accept=".pdf" onChange={handleFileChange} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+          {existingFileUrl && !fileDeleted && !file && (
+            <p className="text-sm text-gray-600 mt-1">
+              Currently uploaded. <button type="button" onClick={() => { setFileDeleted(true); setExistingFileUrl(''); }} className="text-red-600 hover:text-red-800 ml-1">Remove</button>
+            </p>
+          )}
         </div>
       )}
 

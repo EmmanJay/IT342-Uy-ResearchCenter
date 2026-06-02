@@ -95,6 +95,14 @@ public class RepositoryController {
         return ResponseEntity.ok(wrap(true, Map.of("message", "Member removed successfully"), null));
     }
 
+    @PostMapping("/{id}/leave")
+    public ResponseEntity<?> leaveRepository(@AuthenticationPrincipal UserDetails principal,
+                                             @PathVariable Long id) {
+        User user = userService.findByEmail(principal.getUsername());
+        repositoryService.leaveRepository(id, user.getId());
+        return ResponseEntity.ok(wrap(true, Map.of("message", "Successfully left repository"), null));
+    }
+
     // ── Materials by repo ─────────────────────────────────────────────────
     @GetMapping("/{id}/materials")
     public ResponseEntity<?> getMaterials(@AuthenticationPrincipal UserDetails principal, @PathVariable Long id) {

@@ -31,11 +31,21 @@ axiosClient.interceptors.request.use(
 axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+    const code = error.response?.data?.error?.code;
+    const message = (error.response?.data?.error?.message || '').toString().toLowerCase();
+    const isSuspended = (status === 403 || status === 401) && (code === 'AUTH-003' || message.includes('suspend'));
+
+    if (isSuspended) {
+      window.dispatchEvent(new CustomEvent('rc-account-suspended'));
+      return Promise.reject(error);
+    }
+
+    if (status === 401) {
       // Only redirect to login if we're not already on the login page
       if (window.location.pathname !== '/login') {
         SessionManager.clear();
-        window.location.href = '/login';
+        window.location.replace('/login');
       }
     }
     return Promise.reject(error);

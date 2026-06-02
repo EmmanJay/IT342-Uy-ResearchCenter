@@ -5,6 +5,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
 import { SessionManager } from '../../shared/auth/sessionManager';
 import { authApi } from './api/authApi';
+import AppLogo from '../../shared/components/AppLogo';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -24,7 +25,10 @@ const LoginPage = () => {
     try {
       const authData = await authApi.login({ email, password });
       SessionManager.saveAuthData(authData);
-      navigate('/dashboard');
+      const searchParams = new URLSearchParams(location.search);
+      const queryReturnUrl = searchParams.get('returnUrl');
+      const returnTo = (location.state as any)?.returnTo || queryReturnUrl;
+      navigate(returnTo || '/dashboard', { replace: true });
     } catch (err: any) {
       const errorMsg = err.message || err.response?.data?.message || 'Something went wrong. Please try again.';
       setError(errorMsg);
@@ -51,11 +55,13 @@ const LoginPage = () => {
     try {
       const authData = await authApi.googleAuth(credentialResponse.credential);
       SessionManager.saveAuthData(authData);
-      navigate('/dashboard');
+      const searchParams = new URLSearchParams(location.search);
+      const queryReturnUrl = searchParams.get('returnUrl');
+      const returnTo = (location.state as any)?.returnTo || queryReturnUrl;
+      navigate(returnTo || '/dashboard', { replace: true });
     } catch (err: any) {
       const errorMsg = err.message || 'Google sign-in failed. Please try again.';
       setError(errorMsg);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -65,7 +71,7 @@ const LoginPage = () => {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4 flex justify-center">
         <div className="w-full flex justify-center">
-          <span className="text-lg font-semibold text-green-600">ResearchCenter</span>
+          <AppLogo variant="full" imageClassName="h-16 w-auto" />
         </div>
       </header>
 
@@ -118,11 +124,6 @@ const LoginPage = () => {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-              <div className="mt-2 text-right">
-                <Link to="/forgot-password" className="text-xs text-green-600 hover:underline font-medium cursor-pointer">
-                  Forgot Password?
-                </Link>
-              </div>
             </div>
 
             {/* Error message */}
@@ -157,14 +158,13 @@ const LoginPage = () => {
               onError={() => setError('Google sign-in failed.')}
               theme="outline"
               size="large"
-              width="100%"
               text="signin_with"
             />
           </div>
 
           <p className="text-center text-sm text-gray-600 mt-4">
             Don't have an account?{' '}
-            <Link to="/register" className="text-green-600 font-medium hover:underline cursor-pointer">
+            <Link to="/register" state={{ returnTo: (location.state as any)?.returnTo, email }} className="text-green-600 font-medium hover:underline cursor-pointer">
               Sign Up
             </Link>
           </p>

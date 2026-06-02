@@ -56,6 +56,29 @@ public class UserController {
                 .firstname(user.getFirstName())
                 .lastname(user.getLastName())
                 .role(user.getRole() != null ? user.getRole().getName() : null)
+                .profilePicture(user.getProfilePicture())
+                .createdAt(user.getCreatedAt() != null ? user.getCreatedAt().toString() : null)
+                .build();
+
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/me")
+    public ResponseEntity<ApiResponse<AuthResponse>> updateCurrentUser(Authentication authentication, @org.springframework.web.bind.annotation.RequestBody java.util.Map<String, String> updates) {
+        User user = userService.findByEmail(authentication.getName());
+        if (updates.containsKey("firstname")) user.setFirstName(updates.get("firstname"));
+        if (updates.containsKey("lastname")) user.setLastName(updates.get("lastname"));
+        if (updates.containsKey("profilePicture")) user.setProfilePicture(updates.get("profilePicture"));
+        
+        userRepository.save(user);
+
+        AuthResponse response = AuthResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .firstname(user.getFirstName())
+                .lastname(user.getLastName())
+                .role(user.getRole() != null ? user.getRole().getName() : null)
+                .profilePicture(user.getProfilePicture())
                 .createdAt(user.getCreatedAt() != null ? user.getCreatedAt().toString() : null)
                 .build();
 

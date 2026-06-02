@@ -5,6 +5,10 @@ export interface User {
   firstname: string;
   lastname: string;
   role: 'ADMIN' | 'USER';
+  profilePicture?: string;
+  createdAt?: string;
+  isActive?: boolean;
+  suspended?: boolean;
 }
 
 export interface AuthData {
@@ -36,7 +40,18 @@ export interface RepositoryMember {
   lastname?: string;
   email?: string;
   roleInRepo: 'OWNER' | 'MEMBER';
+  status?: 'PENDING' | 'ACCEPTED';
   addedAt?: string;
+  name?: string;
+}
+
+export interface RepositoryNote {
+  id: string | number;
+  content: string;
+  createdAt?: string;
+  updatedAt?: string;
+  authorId?: string | number;
+  authorName?: string;
 }
 
 export interface Repository {
@@ -47,6 +62,11 @@ export interface Repository {
   ownerName?: string;
   createdAt: string;
   updatedAt: string;
+  memberCount?: number;
+  materialCount?: number;
+  bookmarked?: boolean;
+  favorited?: boolean;
+  recentActivity?: string;
 }
 
 export interface RepositoryDetail extends Repository {
@@ -92,9 +112,12 @@ export interface Material {
   title: string;
   description?: string;
   type: MaterialTypeValue;
+  materialType?: MaterialTypeValue;
   repositoryId: string;
   uploadedBy: string;
   uploadedByName?: string;
+  uploaderName?: string;
+  bookmarked?: boolean;
   status: MaterialStatusValue;
   tags: MaterialTag[];
   metadata?: GoogleBookMetadata;

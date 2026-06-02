@@ -7,3 +7,77 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+button:not(:disabled),
+a[href],
+[role="button"],
+summary,
+select,
+input[type="checkbox"],
+input[type="radio"] {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+.rc-loader-ring {
+  border-color: #4CAF50;
+  animation: rc-loader-rotate 3s linear infinite;
+}
+
+.rc-loader-core {
+  animation: rc-loader-pulse 2s ease-in-out infinite;
+}
+
+.rc-loader-text {
+  animation: rc-loader-fade 1.5s ease-in-out infinite;
+}
+
+@keyframes rc-loader-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rc-loader-pulse {
+  0%, 100% {
+    transform: scale(1);
+    border-radius: 12px;
+  }
+  50% {
+    transform: scale(1.15);
+    border-radius: 9999px;
+  }
+}
+
+@keyframes rc-loader-fade {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 20px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
+}

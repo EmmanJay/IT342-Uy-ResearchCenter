@@ -4,6 +4,7 @@ import MaterialForm from './components/MaterialForm';
 import { materialApi } from './api/materialApi';
 import Navbar from '../../shared/components/Navbar';
 import Breadcrumbs from '../../shared/components/Breadcrumbs';
+import LoadingScreen from '../../shared/components/LoadingScreen';
 
 const EditMaterialPage = () => {
   const navigate = useNavigate();
@@ -31,11 +32,16 @@ const EditMaterialPage = () => {
   }, [materialId]);
 
   const handleUpdate = async (payload: any) => {
-    await materialApi.update(materialId!, payload);
-    navigate(`/repositories/${id}`);
+    try {
+      await materialApi.update(materialId!, payload);
+      navigate(`/repositories/${id}`);
+    } catch (err: any) {
+      alert(err?.response?.data?.error?.message || err?.response?.data?.message || err?.message || 'Failed to save material. Please try again.');
+      throw err;
+    }
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-500">Loading material data...</div>;
+  if (loading) return <LoadingScreen label="Loading material" />;
   if (error) return <div className="min-h-screen flex items-center justify-center text-red-600">{error}</div>;
 
   return (
