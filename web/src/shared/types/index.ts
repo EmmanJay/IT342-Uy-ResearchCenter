@@ -43,6 +43,7 @@ export interface RepositoryMember {
   status?: 'PENDING' | 'ACCEPTED';
   addedAt?: string;
   name?: string;
+  profilePicture?: string;
 }
 
 export interface RepositoryNote {
