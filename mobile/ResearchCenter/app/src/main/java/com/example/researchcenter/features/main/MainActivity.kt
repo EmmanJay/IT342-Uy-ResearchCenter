@@ -8,13 +8,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.researchcenter.R
 import com.example.researchcenter.features.auth.LoginActivity
-import com.example.researchcenter.features.bookmarks.GlobalBookmarksFragment
-import com.example.researchcenter.features.activity.NotificationsFragment
+import com.example.researchcenter.features.activity.NotificationsActivity
+import com.example.researchcenter.features.activity.RecentActivityFragment
 import com.example.researchcenter.features.dashboard.DashboardFragment
 import com.example.researchcenter.features.profile.ProfileFragment
 import com.example.researchcenter.shared.api.NotificationWebSocketClient
 import com.example.researchcenter.shared.auth.SessionManager
-import com.example.researchcenter.shared.ui.UserAvatarView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import org.json.JSONObject
 
@@ -24,8 +23,7 @@ class MainActivity : AppCompatActivity() {
     private var activeFragment: Fragment? = null
 
     private val dashboardFragment by lazy { DashboardFragment() }
-    private val bookmarksFragment by lazy { GlobalBookmarksFragment() }
-    private val notificationsFragment by lazy { NotificationsFragment() }
+    private val recentActivityFragment by lazy { RecentActivityFragment() }
     private val profileFragment by lazy { ProfileFragment() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,9 +48,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupTopBar() {
+        // Bell icon opens NotificationsActivity (what OTHERS did)
         findViewById<ImageButton>(R.id.btn_notification_bell).setOnClickListener {
-            bottomNav.selectedItemId = R.id.nav_notifications
+            startActivity(Intent(this, NotificationsActivity::class.java))
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         }
+        refreshAvatar()
     }
 
     private fun setupBottomNavigation() {
@@ -60,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_dashboard -> { loadFragment(dashboardFragment); true }
-                R.id.nav_notifications -> { loadFragment(notificationsFragment); true }
+                R.id.nav_activities -> { loadFragment(recentActivityFragment); true }
                 R.id.nav_profile -> { loadFragment(profileFragment); true }
                 else -> false
             }
@@ -76,7 +77,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun refreshAvatar() {
-        // No top-bar avatar to refresh
+        val name = SessionManager.getName(this)
+        val email = SessionManager.getEmail(this)
+        findViewById<com.example.researchcenter.shared.ui.UserAvatarView>(R.id.tv_avatar)?.setUser(name, email, SessionManager.getProfilePicture(this))
     }
 
     override fun onResume() {

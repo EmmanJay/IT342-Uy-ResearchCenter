@@ -76,8 +76,10 @@
 
             <ImageButton
                 android:id="@+id/btn_fulfill"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:padding="2dp"
+                android:scaleType="fitCenter"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_menu_add"
                 app:tint="@color/primary_green"
@@ -86,12 +88,14 @@
 
             <ImageButton
                 android:id="@+id/btn_menu"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:padding="2dp"
+                android:scaleType="fitCenter"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_menu_delete"
                 app:tint="@color/error_red"
-                android:visibility="gone" />
+                android:contentDescription="Delete" />
         </LinearLayout>
 
         <TextView

@@ -39,7 +39,8 @@
             <com.example.researchcenter.shared.ui.UserAvatarView
                 android:id="@+id/tv_avatar"
                 android:layout_width="36dp"
-                android:layout_height="36dp" />
+                android:layout_height="36dp"
+                android:visibility="gone" />
         </LinearLayout>
         
         <View

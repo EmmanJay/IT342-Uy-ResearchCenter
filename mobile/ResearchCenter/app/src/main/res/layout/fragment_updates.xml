@@ -38,6 +38,8 @@
             android:paddingHorizontal="12dp"
             android:background="@drawable/bg_dialog_rounded"
             android:hint="Share announcements, meeting notes, or progress..."
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary"
             android:textSize="@dimen/text_sm"
             android:gravity="top|start"
             android:layout_marginBottom="@dimen/space_3" />

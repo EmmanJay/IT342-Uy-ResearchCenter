@@ -4,153 +4,57 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background_gray"
-    android:padding="@dimen/space_6">
+    android:background="@color/background_gray">
 
+    <!-- Top Bar exactly like MainActivity -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
+        android:background="@color/surface_white"
+        android:elevation="2dp">
 
-        android:layout_gravity="center_horizontal">
+        <!-- Logo -->
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/logo"
+            android:contentDescription="Logo" />
 
-        <!-- Header Section -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingBottom="@dimen/space_4">
+            android:layout_weight="1"
+            android:text="ResearchCenter"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_green"
+            android:layout_marginStart="8dp" />
 
-            <FrameLayout
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@drawable/bg_dialog_rounded"
-                android:backgroundTint="@color/green_50">
+        <!-- Notification Bell -->
+        <ImageButton
+            android:id="@+id/btn_notification_bell"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@android:drawable/ic_popup_reminder"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Notifications"
+            app:tint="@color/primary_green" />
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_gravity="center"
-                    android:src="@android:drawable/ic_popup_reminder"
-                    app:tint="@color/primary_green_dark" />
-            </FrameLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Notifications"
-                android:textSize="@dimen/text_2xl"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary"
-                android:layout_marginStart="@dimen/space_3" />
-        </LinearLayout>
-        
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/green_100"
-            android:layout_marginBottom="@dimen/space_6" />
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_notifications"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:visibility="gone" />
-
-            <!-- Empty State -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/layout_empty_state"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="@dimen/radius_lg"
-                app:cardElevation="0dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/green_100"
-                app:cardBackgroundColor="@color/surface_white">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:paddingTop="48dp"
-                    android:paddingBottom="48dp">
-
-                    <ImageView
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:src="@android:drawable/ic_popup_reminder"
-                        app:tint="@color/green_100"
-                        android:layout_marginBottom="@dimen/space_3" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="No recent notifications"
-                        android:textSize="@dimen/text_base"
-                        android:textColor="@color/text_secondary" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Loading State -->
-            <ProgressBar
-                android:id="@+id/pb_loading"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:indeterminateTint="@color/primary_green"
-                android:visibility="gone" />
-
-        </FrameLayout>
-
-        <!-- Pagination Controls -->
-        <LinearLayout
-            android:id="@+id/layout_pagination"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:paddingTop="@dimen/space_4"
-            android:layout_marginTop="@dimen/space_6"
-            android:visibility="gone">
-            
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/divider"
-                android:layout_marginBottom="@dimen/space_4" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_prev_page"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Previous"
-                android:textColor="@color/text_secondary" />
-
-            <TextView
-                android:id="@+id/tv_page_indicator"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Page 1"
-                android:textSize="@dimen/text_sm"
-                android:textColor="@color/text_secondary"
-                android:layout_marginHorizontal="@dimen/space_4" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_next_page"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Next"
-                android:textColor="@color/text_secondary" />
-        </LinearLayout>
+        <!-- User Avatar -->
+        <com.example.researchcenter.shared.ui.UserAvatarView
+            android:id="@+id/tv_avatar"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="8dp"
+            android:visibility="gone" />
     </LinearLayout>
+
+    <!-- Fragment Container -->
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </LinearLayout>

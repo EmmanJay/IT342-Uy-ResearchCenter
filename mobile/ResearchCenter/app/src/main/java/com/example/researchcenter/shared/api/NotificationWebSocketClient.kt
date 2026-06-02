@@ -30,6 +30,7 @@ object NotificationWebSocketClient {
 
         val request = Request.Builder()
             .url("${BuildConfig.WS_URL}?token=$token")
+            .addHeader("Bypass-Tunnel-Reminder", "true")
             .build()
 
         webSocket = client.newWebSocket(request, object : WebSocketListener() {

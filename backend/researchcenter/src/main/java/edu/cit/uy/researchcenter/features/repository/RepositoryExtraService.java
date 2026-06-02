@@ -26,6 +26,7 @@ public class RepositoryExtraService {
     private final RepositoryUpdateRepository updateRepository;
     private final ResearchRepositoryRepo researchRepositoryRepo;
     private final edu.cit.uy.researchcenter.features.activity.service.ActivityService activityService;
+    private final edu.cit.uy.researchcenter.features.auth.repository.UserRepository userRepository;
 
     @org.springframework.transaction.annotation.Transactional
     public boolean toggleBookmark(Long userId, Long repositoryId) {
@@ -59,8 +60,26 @@ public class RepositoryExtraService {
         return noteRepository.save(note);
     }
 
+    private void populateProfilePicture(RepositoryUpdate update) {
+        if (update != null && update.getAuthorId() != null) {
+            userRepository.findById(update.getAuthorId())
+                .ifPresent(u -> update.setAuthorProfilePicture(u.getProfilePicture()));
+            
+            if (update.getRepositoryId() != null) {
+                researchRepositoryRepo.findById(update.getRepositoryId())
+                    .ifPresent(repo -> {
+                        if (repo.getOwner() != null) {
+                            update.setAuthorRole(repo.getOwner().getId().equals(update.getAuthorId()) ? "OWNER" : "MEMBER");
+                        }
+                    });
+            }
+        }
+    }
+
     public Page<RepositoryUpdate> getUpdates(Long repositoryId, int page, int size) {
-        return updateRepository.findByRepositoryIdOrderByCreatedAtDesc(repositoryId, PageRequest.of(page, size));
+        Page<RepositoryUpdate> updates = updateRepository.findByRepositoryIdOrderByCreatedAtDesc(repositoryId, PageRequest.of(page, size));
+        updates.forEach(this::populateProfilePicture);
+        return updates;
     }
 
     @org.springframework.transaction.annotation.Transactional
@@ -87,6 +106,7 @@ public class RepositoryExtraService {
             activityService.logActivity(actor, "posted an update", "UPDATE", saved.getId(), "Repository Update", repo, null, null);
         }
 
+        populateProfilePicture(saved);
         return saved;
     }
 
@@ -98,19 +118,20 @@ public class RepositoryExtraService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only edit your own comments");
         }
         update.setContent(content);
-        return updateRepository.save(update);
+        RepositoryUpdate saved = updateRepository.save(update);
+        populateProfilePicture(saved);
+        return saved;
     }
 
     @org.springframework.transaction.annotation.Transactional
     public void deleteUpdate(Long updateId, Long userId, Long repositoryId) {
         RepositoryUpdate update = updateRepository.findById(updateId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Update not found"));
-        // Check if user is author OR repo owner
-        ResearchRepository repo = researchRepositoryRepo.findById(repositoryId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Repository not found"));
+        edu.cit.uy.researchcenter.features.auth.model.User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        boolean isAdmin = user.getRole() != null && "ADMIN".equalsIgnoreCase(user.getRole().getName());
         boolean isAuthor = update.getAuthorId().equals(userId);
-        boolean isOwner = repo.getOwner().getId().equals(userId);
-        if (!isAuthor && !isOwner) {
+        if (!isAuthor && !isAdmin) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to delete this comment");
         }
         updateRepository.delete(update);

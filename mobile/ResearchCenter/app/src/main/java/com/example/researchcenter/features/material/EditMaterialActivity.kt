@@ -124,7 +124,7 @@ class EditMaterialActivity : AppCompatActivity() {
     private fun setupTopBar() {
         val name = SessionManager.getName(this)
         val email = SessionManager.getEmail(this)
-        tvAvatar.setUser(name, email)
+        tvAvatar.setUser(name, email, SessionManager.getProfilePicture(this))
     }
 
     private fun setupListeners() {
@@ -173,13 +173,14 @@ class EditMaterialActivity : AppCompatActivity() {
 
         containerUrl.visibility = if (material.materialType == "LINK") View.VISIBLE else View.GONE
         containerIsbn.visibility = if (material.materialType == "REFERENCE") View.VISIBLE else View.GONE
-        containerGoogleSearch.visibility = if (material.materialType == "REFERENCE") View.VISIBLE else View.GONE
+        containerGoogleSearch.visibility = View.VISIBLE
         containerPdf.visibility = if (material.materialType == "PDF") View.VISIBLE else View.GONE
+
+        etIsbn.setText(material.isbn ?: "")
 
         if (material.materialType == "LINK") {
             etUrl.setText(material.url ?: "")
         } else if (material.materialType == "REFERENCE") {
-            etIsbn.setText(material.isbn ?: "")
             fetchedAuthors = material.authors
             fetchedPublisher = material.publisher
             fetchedYear = material.year

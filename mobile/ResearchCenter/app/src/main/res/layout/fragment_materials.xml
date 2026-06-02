@@ -6,19 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/surface_white">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_add_material"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/space_4"
-        android:text="+ Add Material"
-        android:textSize="@dimen/text_sm"
-        app:cornerRadius="@dimen/radius_md"
-        app:backgroundTint="@color/primary_green"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
     <LinearLayout
         android:id="@+id/ll_search_filters"
         android:layout_width="match_parent"
@@ -26,7 +13,7 @@
         android:orientation="vertical"
         android:paddingHorizontal="@dimen/space_4"
         android:paddingTop="@dimen/space_2"
-        app:layout_constraintTop_toBottomOf="@id/btn_add_material">
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_search"
@@ -57,10 +44,10 @@
                 <Spinner
                     android:id="@+id/spinner_sort"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_dialog_rounded"
-                    android:paddingHorizontal="@dimen/space_3"
-                    android:paddingVertical="8dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_spinner"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
                     android:layout_marginEnd="@dimen/space_2" />
 
                 <com.google.android.material.button.MaterialButton
@@ -69,8 +56,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Filters"
+                    android:textAllCaps="false"
                     android:textSize="@dimen/text_sm"
                     android:textColor="@color/text_primary"
+                    android:fontFamily="sans-serif"
+                    android:textStyle="normal"
                     app:strokeColor="@color/border_color"
                     app:cornerRadius="@dimen/radius_md"
                     android:layout_marginEnd="@dimen/space_2" />
@@ -81,8 +71,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Tags"
+                    android:textAllCaps="false"
                     android:textSize="@dimen/text_sm"
                     android:textColor="@color/text_primary"
+                    android:fontFamily="sans-serif"
+                    android:textStyle="normal"
                     app:strokeColor="@color/border_color"
                     app:cornerRadius="@dimen/radius_md" />
             </LinearLayout>

@@ -21,6 +21,7 @@ object ApiClient {
 
     const val BASE_URL = BuildConfig.BASE_URL
 
+    var appContext: android.content.Context? = null
     private var tokenProvider: (() -> String?)? = null
 
     fun init(provider: () -> String?) {
@@ -32,10 +33,22 @@ object ApiClient {
         .readTimeout(30, TimeUnit.SECONDS)
         .addInterceptor { chain ->
             val requestBuilder = chain.request().newBuilder()
+            requestBuilder.addHeader("Bypass-Tunnel-Reminder", "true")
+            requestBuilder.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
             tokenProvider?.invoke()?.let { token ->
                 requestBuilder.addHeader("Authorization", "Bearer $token")
             }
-            chain.proceed(requestBuilder.build())
+            val response = chain.proceed(requestBuilder.build())
+            if (response.code == 401) {
+                appContext?.let { context ->
+                    com.example.researchcenter.shared.auth.SessionManager.clearSession(context)
+                    val intent = android.content.Intent(context, com.example.researchcenter.features.auth.LoginActivity::class.java).apply {
+                        flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
+                    context.startActivity(intent)
+                }
+            }
+            response
         }
         .build()
 

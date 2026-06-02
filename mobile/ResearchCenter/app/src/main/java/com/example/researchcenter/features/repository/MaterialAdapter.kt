@@ -35,6 +35,7 @@ class MaterialAdapter(
         val tvTitle: TextView = view.findViewById(R.id.tv_material_title)
         val tvStatus: TextView = view.findViewById(R.id.tv_material_status)
         val tvMeta: TextView = view.findViewById(R.id.tv_material_meta)
+        val btnBookmark: android.widget.ImageButton = view.findViewById(R.id.btn_bookmark)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -48,6 +49,24 @@ class MaterialAdapter(
         holder.tvTitle.text = material.title
         holder.tvStatus.text = statusLabels[material.status] ?: material.status
         holder.tvMeta.text = "${material.materialType} • by ${material.uploaderName}"
+
+        // Bind Bookmark Button
+        if (material.bookmarked) {
+            holder.btnBookmark.setImageResource(R.drawable.ic_bookmark)
+            holder.btnBookmark.setColorFilter(Color.parseColor("#16A34A"))
+        } else {
+            holder.btnBookmark.setImageResource(R.drawable.ic_bookmark_border)
+            holder.btnBookmark.setColorFilter(Color.parseColor("#9CA3AF"))
+        }
+
+        if (onToggleBookmark != null) {
+            holder.btnBookmark.visibility = View.VISIBLE
+            holder.btnBookmark.setOnClickListener {
+                onToggleBookmark.invoke(material)
+            }
+        } else {
+            holder.btnBookmark.visibility = View.GONE
+        }
 
         holder.itemView.setOnClickListener { view ->
             try {

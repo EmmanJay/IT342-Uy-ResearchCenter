@@ -15,6 +15,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.researchcenter.R
 import com.example.researchcenter.features.material.AddMaterialActivity
 import com.example.researchcenter.features.material.EditMaterialActivity
+import com.example.researchcenter.features.material.MaterialDetailActivity
 import com.example.researchcenter.features.material.MaterialDetailBottomSheet
 import com.example.researchcenter.shared.api.MaterialApi
 import com.example.researchcenter.shared.api.RepositoryApi
@@ -41,7 +42,6 @@ class MaterialsFragment : Fragment() {
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var rvMaterials: RecyclerView
     private lateinit var tvEmpty: TextView
-    private lateinit var btnAdd: View
     private lateinit var etSearch: TextInputEditText
     private lateinit var spinnerSort: Spinner
     private lateinit var tvActiveCount: TextView
@@ -49,6 +49,9 @@ class MaterialsFragment : Fragment() {
     private val sortOptions = listOf("Latest", "Oldest")
     private var currentSort = "Latest"
     private var searchQuery = ""
+    private val selectedStatuses = mutableListOf<String>()
+    private val selectedTypes = mutableListOf<String>()
+    private val activeTags = mutableListOf<String>()
 
     companion object {
         fun newInstance(repoId: Long, isOwner: Boolean): MaterialsFragment {
@@ -63,9 +66,6 @@ class MaterialsFragment : Fragment() {
     
     fun setIsOwner(owner: Boolean) {
         this.isOwner = owner
-        if (::btnAdd.isInitialized) {
-            btnAdd.visibility = if (isOwner) View.VISIBLE else View.GONE
-        }
         if (::adapter.isInitialized) {
             // Re-create adapter or notify
             setupAdapter()
@@ -84,13 +84,10 @@ class MaterialsFragment : Fragment() {
         swipeRefresh = view.findViewById(R.id.swipe_refresh)
         rvMaterials = view.findViewById(R.id.rv_materials)
         tvEmpty = view.findViewById(R.id.tv_empty)
-        btnAdd = view.findViewById(R.id.btn_add_material)
         etSearch = view.findViewById(R.id.et_search)
         spinnerSort = view.findViewById(R.id.spinner_sort)
         tvActiveCount = view.findViewById(R.id.tv_active_filters_count)
 
-        btnAdd.visibility = if (isOwner) View.VISIBLE else View.GONE
-        
         setupAdapter()
         rvMaterials.layoutManager = LinearLayoutManager(context)
         rvMaterials.adapter = adapter
@@ -98,13 +95,12 @@ class MaterialsFragment : Fragment() {
         setupSortSpinner()
         setupSearchInput()
 
-        btnAdd.setOnClickListener {
-            val intent = Intent(context, AddMaterialActivity::class.java).apply {
-                putExtra("REPO_ID", repoId)
-                putExtra("REPO_NAME", activity?.intent?.getStringExtra("REPO_NAME") ?: "Repository")
-            }
-            startActivity(intent)
-        }
+
+
+        val btnFilters: View = view.findViewById(R.id.btn_filters)
+        val btnTags: View = view.findViewById(R.id.btn_tags)
+        btnFilters.setOnClickListener { showFiltersDialog() }
+        btnTags.setOnClickListener { showTagsDialog() }
 
         swipeRefresh.setOnRefreshListener { loadMaterials() }
         loadMaterials()
@@ -125,7 +121,9 @@ class MaterialsFragment : Fragment() {
     }
 
     private fun setupSortSpinner() {
-        spinnerSort.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, sortOptions)
+        val sortAdapter = ArrayAdapter(requireContext(), R.layout.item_spinner_selected, sortOptions)
+        sortAdapter.setDropDownViewResource(R.layout.item_spinner_dropdown)
+        spinnerSort.adapter = sortAdapter
         spinnerSort.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 currentSort = sortOptions[position]
@@ -158,6 +156,27 @@ class MaterialsFragment : Fragment() {
             }
         }
 
+        // Apply Status Filter
+        if (selectedStatuses.isNotEmpty()) {
+            filteredList = filteredList.filter {
+                selectedStatuses.contains(it.myStatus ?: it.status ?: "TO_READ")
+            }
+        }
+
+        // Apply Material Type Filter
+        if (selectedTypes.isNotEmpty()) {
+            filteredList = filteredList.filter {
+                selectedTypes.contains(it.materialType)
+            }
+        }
+
+        // Apply Tags Filter
+        if (activeTags.isNotEmpty()) {
+            filteredList = filteredList.filter {
+                it.tags.any { tag -> activeTags.contains(tag) }
+            }
+        }
+
         // Apply Sorting
         filteredList = if (currentSort == "Latest") {
             filteredList.sortedByDescending { it.createdAt }
@@ -170,7 +189,75 @@ class MaterialsFragment : Fragment() {
         adapter.notifyDataSetChanged()
 
         tvEmpty.visibility = if (displayedMaterials.isEmpty()) View.VISIBLE else View.GONE
-        tvActiveCount.text = "Showing ${displayedMaterials.size} materials"
+        
+        var activeFilterCount = selectedStatuses.size + selectedTypes.size + activeTags.size
+        var infoText = "Showing ${displayedMaterials.size} materials"
+        if (activeFilterCount > 0) {
+            infoText += " ($activeFilterCount filters active)"
+        }
+        tvActiveCount.text = infoText
+    }
+
+    private fun showFiltersDialog() {
+        val filterOptions = arrayOf("To Read", "In Progress", "Completed", "PDF", "Link")
+        val checkedItems = BooleanArray(filterOptions.size) { index ->
+            when (index) {
+                0 -> selectedStatuses.contains("TO_READ")
+                1 -> selectedStatuses.contains("IN_PROGRESS")
+                2 -> selectedStatuses.contains("COMPLETED")
+                3 -> selectedTypes.contains("PDF")
+                4 -> selectedTypes.contains("LINK")
+                else -> false
+            }
+        }
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Select Filters")
+            .setMultiChoiceItems(filterOptions, checkedItems) { _, which, isChecked ->
+                checkedItems[which] = isChecked
+            }
+            .setPositiveButton("Apply") { _, _ ->
+                selectedStatuses.clear()
+                selectedTypes.clear()
+                if (checkedItems[0]) selectedStatuses.add("TO_READ")
+                if (checkedItems[1]) selectedStatuses.add("IN_PROGRESS")
+                if (checkedItems[2]) selectedStatuses.add("COMPLETED")
+                if (checkedItems[3]) selectedTypes.add("PDF")
+                if (checkedItems[4]) selectedTypes.add("LINK")
+                filterAndSort()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showTagsDialog() {
+        val distinctTags = allMaterials.flatMap { it.tags }.distinct().sorted()
+        if (distinctTags.isEmpty()) {
+            Toast.makeText(context, "No tags available", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val tagArray = distinctTags.toTypedArray()
+        val checkedItems = BooleanArray(tagArray.size) { index ->
+            activeTags.contains(tagArray[index])
+        }
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Filter by Tags")
+            .setMultiChoiceItems(tagArray, checkedItems) { _, which, isChecked ->
+                checkedItems[which] = isChecked
+            }
+            .setPositiveButton("Apply") { _, _ ->
+                activeTags.clear()
+                for (i in checkedItems.indices) {
+                    if (checkedItems[i]) {
+                        activeTags.add(tagArray[i])
+                    }
+                }
+                filterAndSort()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun loadMaterials() {
@@ -255,7 +342,9 @@ class MaterialsFragment : Fragment() {
     }
 
     private fun showMaterialDetail(material: Material) {
-        MaterialDetailBottomSheet.newInstance(material.id, repoId, isOwner) {
+        com.example.researchcenter.features.material.MaterialDetailBottomSheet.newInstance(
+            material.id, repoId, isOwner
+        ) {
             loadMaterials()
         }.show(childFragmentManager, "MaterialDetail")
     }

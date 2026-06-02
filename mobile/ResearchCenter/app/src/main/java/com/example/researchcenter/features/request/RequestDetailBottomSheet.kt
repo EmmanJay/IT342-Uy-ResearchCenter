@@ -43,6 +43,13 @@ class RequestDetailBottomSheet : BottomSheetDialogFragment() {
 
     private var currentRequest: MaterialRequest? = null
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requestId = arguments?.getLong("requestId") ?: -1L
+        repoId = arguments?.getLong("repoId") ?: -1L
+        isOwner = arguments?.getBoolean("isOwner") ?: false
+    }
+
     companion object {
         fun newInstance(
             requestId: Long,
@@ -51,9 +58,11 @@ class RequestDetailBottomSheet : BottomSheetDialogFragment() {
             onRefresh: () -> Unit
         ): RequestDetailBottomSheet {
             val sheet = RequestDetailBottomSheet()
-            sheet.requestId = requestId
-            sheet.repoId = repoId
-            sheet.isOwner = isOwner
+            val args = Bundle()
+            args.putLong("requestId", requestId)
+            args.putLong("repoId", repoId)
+            args.putBoolean("isOwner", isOwner)
+            sheet.arguments = args
             sheet.onRefresh = onRefresh
             return sheet
         }
@@ -131,7 +140,14 @@ class RequestDetailBottomSheet : BottomSheetDialogFragment() {
             tvClosureNote.visibility = View.VISIBLE
             val fulfiller = request.fulfilledByName ?: "Someone"
             val matTitle = request.materialTitle ?: "attached material"
-            tvClosureNote.text = "Fulfilled by $fulfiller: Material \"$matTitle\" has been attached."
+            
+            val htmlText = "Attached: <font color='#16A34A'><u>$matTitle</u></font> • by <b>$fulfiller</b>"
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                tvClosureNote.text = android.text.Html.fromHtml(htmlText, android.text.Html.FROM_HTML_MODE_LEGACY)
+            } else {
+                @Suppress("DEPRECATION")
+                tvClosureNote.text = android.text.Html.fromHtml(htmlText)
+            }
             
             // Attached material click action (navigates if uploader/members want to see)
             tvClosureNote.isClickable = true
@@ -159,7 +175,10 @@ class RequestDetailBottomSheet : BottomSheetDialogFragment() {
         }
 
         // Close / Delete request behavior
-        if (isOwner || isRequester) {
+        val userRole = SessionManager.getRole(requireContext())
+        val canDelete = userRole == "ADMIN" || request.requesterId == currentUserId || isOwner
+
+        if (canDelete && request.status != "FULFILLED") {
             btnCloseRequest.visibility = View.VISIBLE
             btnCloseRequest.text = "Delete Request"
             btnCloseRequest.setTextColor(Color.parseColor("#DC2626"))

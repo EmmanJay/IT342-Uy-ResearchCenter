@@ -34,6 +34,7 @@
         <activity android:name=".features.repository.CreateRepositoryActivity" />
         <activity android:name=".features.material.AddMaterialActivity" />
         <activity android:name=".features.material.EditMaterialActivity" />
+        <activity android:name=".features.material.MaterialDetailActivity" android:exported="false" />
         <activity android:name=".features.request.NewRequestActivity" />
 
         <activity android:name=".features.activity.NotificationsActivity" android:exported="false" />

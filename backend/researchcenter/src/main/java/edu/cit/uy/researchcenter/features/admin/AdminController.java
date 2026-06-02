@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+
 import org.springframework.transaction.annotation.Transactional;
 
 @RestController
@@ -36,6 +37,57 @@ public class AdminController {
     private final MaterialRepo materialRepo;
     private final MaterialRequestRepo requestRepo;
     private final JdbcTemplate jdbcTemplate;
+
+    @jakarta.annotation.PostConstruct
+    public void addJohnDoeToDemoRepo() {
+        try {
+            System.out.println("====== INITIALIZING DEMO REPO MEMBERSHIP ======");
+            // 1. Find user John Doe (email containing 'john' or name containing 'john')
+            List<Map<String, Object>> users = jdbcTemplate.queryForList(
+                "SELECT id, first_name, last_name, email FROM users WHERE LOWER(first_name || ' ' || last_name) LIKE '%john%' OR LOWER(email) LIKE '%john%'"
+            );
+            if (users.isEmpty()) {
+                System.out.println("No John Doe user found in database!");
+                return;
+            }
+            Long userId = ((Number) users.get(0).get("id")).longValue();
+            String name = users.get(0).get("first_name") + " " + users.get(0).get("last_name");
+            System.out.println("Found user: " + name + " (ID: " + userId + ")");
+            
+            // 2. Find repository named "Demo"
+            List<Map<String, Object>> repos = jdbcTemplate.queryForList(
+                "SELECT id, name FROM repositories WHERE LOWER(name) = 'demo'"
+            );
+            if (repos.isEmpty()) {
+                System.out.println("No Demo repository found in database!");
+                return;
+            }
+            Long repoId = ((Number) repos.get(0).get("id")).longValue();
+            System.out.println("Found repository: " + repos.get(0).get("name") + " (ID: " + repoId + ")");
+            
+            // 3. Add John Doe as an ACCEPTED member of the Demo repo
+            List<Map<String, Object>> existing = jdbcTemplate.queryForList(
+                "SELECT id FROM repository_members WHERE repository_id = ? AND user_id = ?",
+                repoId, userId
+            );
+            if (!existing.isEmpty()) {
+                System.out.println("John Doe is already a member of Demo repository! Updating status to ACCEPTED...");
+                jdbcTemplate.update(
+                    "UPDATE repository_members SET status = 'ACCEPTED' WHERE repository_id = ? AND user_id = ?",
+                    repoId, userId
+                );
+            } else {
+                jdbcTemplate.update(
+                    "INSERT INTO repository_members (repository_id, user_id, role_in_repo, status, joined_at) VALUES (?, ?, 'MEMBER', 'ACCEPTED', CURRENT_TIMESTAMP)",
+                    repoId, userId
+                );
+                System.out.println("Successfully added John Doe to Demo repository as ACCEPTED member!");
+            }
+            System.out.println("===============================================");
+        } catch (Exception e) {
+            System.err.println("Error adding John Doe: " + e.getMessage());
+        }
+    }
 
     @GetMapping("/users")
     public ResponseEntity<?> listUsers(@RequestParam(defaultValue = "0") int page,

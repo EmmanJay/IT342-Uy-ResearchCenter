@@ -73,6 +73,7 @@ object SessionManager {
         getPrefs(context).getLong(KEY_USER_ID, 0L)
 
     private const val KEY_ROLE = "user_role"
+    private const val KEY_PROFILE_PIC = "user_profile_pic"
 
     fun saveEmail(context: Context, email: String) {
         getPrefs(context).edit().putString(KEY_EMAIL, email).apply()
@@ -85,6 +86,13 @@ object SessionManager {
     fun saveRole(context: Context, role: String) {
         getPrefs(context).edit().putString(KEY_ROLE, role).apply()
     }
+
+    fun saveProfilePicture(context: Context, url: String?) {
+        getPrefs(context).edit().putString(KEY_PROFILE_PIC, url).apply()
+    }
+
+    fun getProfilePicture(context: Context): String? =
+        getPrefs(context).getString(KEY_PROFILE_PIC, null)
 
     fun getToken(context: Context): String? =
         getPrefs(context).getString(KEY_TOKEN, null)
@@ -101,7 +109,39 @@ object SessionManager {
     fun getRole(context: Context): String? =
         getPrefs(context).getString(KEY_ROLE, null)
 
-    fun isLoggedIn(context: Context): Boolean = getToken(context) != null
+    fun isTokenExpired(token: String?): Boolean {
+        if (token.isNullOrBlank()) return true
+        val parts = token.split(".")
+        if (parts.size < 2) return true
+        return try {
+            val payload = String(android.util.Base64.decode(parts[1], android.util.Base64.DEFAULT))
+            val json = org.json.JSONObject(payload)
+            val exp = json.optLong("exp", 0L)
+            val expMs = exp * 1000
+            val currentMs = System.currentTimeMillis()
+            currentMs >= expMs
+        } catch (e: Exception) {
+            true // Treat parse failure as expired
+        }
+    }
+
+    fun isLoggedIn(context: Context): Boolean {
+        val token = getToken(context) ?: return false
+        if (isTokenExpired(token)) {
+            clearSession(context)
+            return false
+        }
+        return true
+    }
+
+    private const val KEY_LOCAL_AVATAR = "local_avatar_uri"
+
+    fun saveLocalAvatarUri(context: Context, uri: String?) {
+        getPrefs(context).edit().putString(KEY_LOCAL_AVATAR, uri).apply()
+    }
+
+    fun getLocalAvatarUri(context: Context): String? =
+        getPrefs(context).getString(KEY_LOCAL_AVATAR, null)
 
     fun clearSession(context: Context) {
         getPrefs(context).edit().clear().apply()

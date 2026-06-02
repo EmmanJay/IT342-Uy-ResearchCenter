@@ -50,7 +50,8 @@
                     <com.example.researchcenter.shared.ui.UserAvatarView
                         android:id="@+id/tv_avatar"
                         android:layout_width="36dp"
-                        android:layout_height="36dp" />
+                        android:layout_height="36dp"
+                        android:visibility="gone" />
                 </LinearLayout>
                 
                 <View
@@ -64,14 +65,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="@dimen/space_6"
-                    android:layout_gravity="center_horizontal"
-                   > <!-- max-w-6xl -->
-
-                    <com.example.researchcenter.shared.ui.BreadcrumbsView
-                        android:id="@+id/breadcrumbs"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/space_4" />
+                    android:layout_gravity="center_horizontal">
 
                     <!-- Title Row -->
                     <LinearLayout
@@ -86,9 +80,19 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:textSize="30sp"
+                            android:textSize="26sp"
                             android:textStyle="bold"
                             android:textColor="@color/text_primary" />
+
+                        <ImageButton
+                            android:id="@+id/btn_repo_info"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/ic_info"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            app:tint="@color/primary_green"
+                            android:contentDescription="Repository Info"
+                            android:layout_marginEnd="@dimen/space_2" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btn_leave_repo"
@@ -102,35 +106,6 @@
                             app:backgroundTint="@color/red_50"
                             android:visibility="gone" />
                     </LinearLayout>
-
-                    <!-- Description -->
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/space_6">
-                        
-                        <TextView
-                            android:id="@+id/tv_repo_desc"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="@dimen/text_sm"
-                            android:maxLines="3"
-                            android:ellipsize="end" />
-
-                        <TextView
-                            android:id="@+id/tv_read_more"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Read more"
-                            android:textSize="@dimen/text_sm"
-                            android:textColor="@color/primary_green"
-                            android:background="@color/surface_white"
-                            android:paddingStart="@dimen/space_2"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignBottom="@id/tv_repo_desc"
-                            android:visibility="gone" />
-                    </RelativeLayout>
 
                 </LinearLayout>
 
@@ -164,5 +139,17 @@
         android:layout_height="match_parent"
         android:background="@color/background_gray"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btn_floating_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:src="@android:drawable/ic_input_add"
+        app:tint="@color/surface_white"
+        app:backgroundTint="@color/primary_green"
+        android:contentDescription="Floating Add Button"
+        android:visibility="gone" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

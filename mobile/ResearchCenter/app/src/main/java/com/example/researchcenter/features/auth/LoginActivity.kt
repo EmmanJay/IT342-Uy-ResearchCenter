@@ -56,7 +56,7 @@ class LoginActivity : AppCompatActivity() {
             tilPassword.error = null
 
             val email = etEmail.text.toString().trim()
-            val password = etPassword.text.toString().trim()
+            val password = etPassword.text.toString()
 
             var isValid = true
 
@@ -96,7 +96,23 @@ class LoginActivity : AppCompatActivity() {
                             proceedToNextScreen()
                         }
                     } else {
-                        val errorMsg = wrapper?.error?.code ?: "Invalid email or password."
+                        var errorMsg = "Invalid email or password."
+                        try {
+                            val errorStr = response.errorBody()?.string()
+                            if (!errorStr.isNullOrBlank()) {
+                                if (errorStr.trim().startsWith("{")) {
+                                    val errorObj = com.google.gson.Gson().fromJson(errorStr, ApiResponse::class.java)
+                                    errorMsg = errorObj.error?.message ?: errorObj.error?.code ?: errorMsg
+                                } else {
+                                    errorMsg = "Server Error ${response.code()}: ${errorStr.take(30)}"
+                                }
+                            } else {
+                                errorMsg = "Server Error ${response.code()}"
+                            }
+                        } catch (e: Exception) {
+                            errorMsg = "Server Error ${response.code()}"
+                        }
+                        
                         runOnUiThread {
                             Toast.makeText(this@LoginActivity, errorMsg, Toast.LENGTH_LONG).show()
                             btnLogin.isEnabled = true
@@ -106,6 +122,7 @@ class LoginActivity : AppCompatActivity() {
                 }
 
                 override fun onFailure(call: Call<ApiResponse<AuthResponse>>, t: Throwable) {
+                    android.util.Log.e("LoginActivity", "Login failed: ", t)
                     runOnUiThread {
                         Toast.makeText(this@LoginActivity, "Network error. Check your connection.", Toast.LENGTH_LONG).show()
                         btnLogin.isEnabled = true

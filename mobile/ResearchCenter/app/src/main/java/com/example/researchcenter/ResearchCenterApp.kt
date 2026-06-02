@@ -7,6 +7,7 @@ import com.example.researchcenter.shared.auth.SessionManager
 class ResearchCenterApp : Application() {
     override fun onCreate() {
         super.onCreate()
+        ApiClient.appContext = this
         ApiClient.init { SessionManager.getToken(this) }
     }
 }

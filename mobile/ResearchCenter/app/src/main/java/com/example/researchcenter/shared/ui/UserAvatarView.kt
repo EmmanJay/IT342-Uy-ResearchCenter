@@ -8,6 +8,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import com.example.researchcenter.R
+import coil.load
 
 class UserAvatarView @JvmOverloads constructor(
     context: Context,
@@ -43,12 +44,32 @@ class UserAvatarView @JvmOverloads constructor(
         if (!imageUrl.isNullOrEmpty()) {
             ivAvatarImage.visibility = View.VISIBLE
             tvInitials.visibility = View.GONE
-            // Use Glide or Picasso here to load the image if needed.
-            // For now, mirroring the default Web fallback to initials if image loading is not fully implemented.
+            try {
+                ivAvatarImage.load(imageUrl) {
+                    crossfade(true)
+                    placeholder(R.drawable.rounded_card)
+                    error(R.drawable.rounded_card)
+                }
+            } catch (e: Exception) {
+                ivAvatarImage.visibility = View.GONE
+                tvInitials.visibility = View.VISIBLE
+                tvInitials.text = getInitials(name, email)
+            }
         } else {
             ivAvatarImage.visibility = View.GONE
             tvInitials.visibility = View.VISIBLE
             tvInitials.text = getInitials(name, email)
+        }
+    }
+
+    fun setImageURI(uri: android.net.Uri?) {
+        if (uri != null) {
+            ivAvatarImage.visibility = View.VISIBLE
+            tvInitials.visibility = View.GONE
+            ivAvatarImage.setImageURI(uri)
+        } else {
+            ivAvatarImage.visibility = View.GONE
+            tvInitials.visibility = View.VISIBLE
         }
     }
 

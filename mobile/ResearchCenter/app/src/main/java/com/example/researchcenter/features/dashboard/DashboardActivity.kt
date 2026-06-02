@@ -87,7 +87,7 @@ class DashboardActivity : AppCompatActivity() {
         val tvAvatar = findViewById<com.example.researchcenter.shared.ui.UserAvatarView>(R.id.tv_avatar)
         val name = SessionManager.getName(this)
         val email = SessionManager.getEmail(this)
-        tvAvatar.setUser(name, email)
+        tvAvatar.setUser(name, email, SessionManager.getProfilePicture(this))
         tvAvatar.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
@@ -163,9 +163,9 @@ class DashboardActivity : AppCompatActivity() {
                         val fullName = "${result.firstname} ${result.lastname}".trim()
                         SessionManager.saveName(this@DashboardActivity, fullName)
                         SessionManager.saveRole(this@DashboardActivity, result.role)
+                        SessionManager.saveProfilePicture(this@DashboardActivity, result.profilePicture)
                         
-                        
-                        findViewById<com.example.researchcenter.shared.ui.UserAvatarView>(R.id.tv_avatar).setUser(fullName, result.email)
+                        findViewById<com.example.researchcenter.shared.ui.UserAvatarView>(R.id.tv_avatar).setUser(fullName, result.email, result.profilePicture)
                     }
                 }
             }

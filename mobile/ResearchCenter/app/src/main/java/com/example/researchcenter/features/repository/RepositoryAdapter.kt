@@ -59,15 +59,23 @@ class RepositoryAdapter(
 
         if (repo.role != null) {
             holder.tvRole.visibility = View.VISIBLE
-            holder.tvRole.text = repo.role
-            val context = holder.itemView.context
-            val bgColor = if (repo.role == "OWNER") R.color.primary_green else R.color.teal_badge
+            holder.tvRole.text = when (repo.role.uppercase()) {
+                "OWNER" -> "Owner"
+                "MEMBER" -> "Member"
+                else -> repo.role
+            }
+            val (bgColor, textColor, borderColor) = if (repo.role == "OWNER") {
+                Triple(Color.parseColor("#DCFCE7"), Color.parseColor("#166534"), Color.parseColor("#86EFAC"))
+            } else {
+                Triple(Color.parseColor("#DBEAFE"), Color.parseColor("#1D4ED8"), Color.parseColor("#93C5FD"))
+            }
             holder.tvRole.background = android.graphics.drawable.GradientDrawable().apply {
                 shape = android.graphics.drawable.GradientDrawable.RECTANGLE
                 cornerRadius = 999f
-                setColor(context.getColor(bgColor))
+                setColor(bgColor)
+                setStroke(2, borderColor)
             }
-            holder.tvRole.setTextColor(context.getColor(R.color.surface_white))
+            holder.tvRole.setTextColor(textColor)
         } else {
             holder.tvRole.visibility = View.GONE
         }

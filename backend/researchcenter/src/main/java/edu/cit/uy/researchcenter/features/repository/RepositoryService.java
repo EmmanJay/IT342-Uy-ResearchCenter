@@ -179,6 +179,7 @@ public class RepositoryService {
                         .role(m.getRoleInRepo())
                         .status(m.getStatus())
                         .joinedAt(m.getJoinedAt())
+                        .profilePicture(m.getUser().getProfilePicture())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -258,6 +259,7 @@ public class RepositoryService {
                         .role(m.getRoleInRepo())
                         .status(m.getStatus())
                         .joinedAt(m.getJoinedAt())
+                        .profilePicture(m.getUser().getProfilePicture())
                         .build())
                 .collect(Collectors.toList());
         base.setMembers(members);

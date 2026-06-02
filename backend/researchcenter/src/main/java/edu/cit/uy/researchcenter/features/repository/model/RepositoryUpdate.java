@@ -24,6 +24,12 @@ public class RepositoryUpdate {
     @Column(name = "author_name")
     private String authorName;
 
+    @Transient
+    private String authorProfilePicture;
+
+    @Transient
+    private String authorRole;
+
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 

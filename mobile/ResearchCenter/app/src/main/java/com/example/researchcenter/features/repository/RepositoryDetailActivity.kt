@@ -31,15 +31,15 @@ class RepositoryDetailActivity : AppCompatActivity() {
     private var repoId: Long = -1
     private var isOwner: Boolean = false
     private var repoName: String = ""
+    private var repoDescription: String = ""
 
     private lateinit var tvRepoName: TextView
-    private lateinit var tvRepoDesc: TextView
-    private lateinit var tvReadMore: TextView
     private lateinit var btnLeaveRepo: MaterialButton
     private lateinit var tvAvatar: UserAvatarView
-    private lateinit var breadcrumbs: BreadcrumbsView
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager: ViewPager2
+    private lateinit var btnRepoInfo: android.widget.ImageButton
+    private lateinit var btnFloatingAction: com.google.android.material.floatingactionbutton.FloatingActionButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,27 +65,46 @@ class RepositoryDetailActivity : AppCompatActivity() {
 
     private fun initViews() {
         tvRepoName = findViewById(R.id.tv_repo_name)
-        tvRepoDesc = findViewById(R.id.tv_repo_desc)
-        tvReadMore = findViewById(R.id.tv_read_more)
         btnLeaveRepo = findViewById(R.id.btn_leave_repo)
         tvAvatar = findViewById(R.id.tv_avatar)
-        breadcrumbs = findViewById(R.id.breadcrumbs)
         tabLayout = findViewById(R.id.tab_layout)
         viewPager = findViewById(R.id.view_pager)
+        btnRepoInfo = findViewById(R.id.btn_repo_info)
+        btnFloatingAction = findViewById(R.id.btn_floating_action)
 
         tvRepoName.text = repoName
 
-        // Initial breadcrumbs path
-        breadcrumbs.setPath(listOf(
-            "Dashboard" to { finish() },
-            repoName to {}
-        ))
+        btnRepoInfo.setOnClickListener {
+            MaterialAlertDialogBuilder(this)
+                .setTitle(repoName)
+                .setMessage(if (repoDescription.isNotEmpty()) repoDescription else "No description provided.")
+                .setPositiveButton("Close", null)
+                .show()
+        }
+
+        btnFloatingAction.setOnClickListener {
+            when (viewPager.currentItem) {
+                0 -> {
+                    val intent = Intent(this, com.example.researchcenter.features.material.AddMaterialActivity::class.java).apply {
+                        putExtra("REPO_ID", repoId)
+                        putExtra("REPO_NAME", repoName)
+                    }
+                    startActivity(intent)
+                }
+                2 -> {
+                    val intent = Intent(this, com.example.researchcenter.features.request.NewRequestActivity::class.java).apply {
+                        putExtra("REPO_ID", repoId)
+                    }
+                    startActivity(intent)
+                }
+            }
+        }
     }
 
     private fun setupTopBar() {
         val name = SessionManager.getName(this)
         val email = SessionManager.getEmail(this)
-        tvAvatar.setUser(name, email)
+        tvAvatar.setUser(name, email, SessionManager.getProfilePicture(this))
     }
 
     private fun setupViewPager() {
@@ -97,6 +116,27 @@ class RepositoryDetailActivity : AppCompatActivity() {
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = tabTitles[position]
         }.attach()
+
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                updateFabVisibility(position)
+            }
+        })
+    }
+
+    private fun updateFabVisibility(position: Int) {
+        if (!::btnFloatingAction.isInitialized) return
+        when (position) {
+            0 -> {
+                btnFloatingAction.visibility = if (isOwner) View.VISIBLE else View.GONE
+            }
+            2 -> {
+                btnFloatingAction.visibility = View.VISIBLE
+            }
+            else -> {
+                btnFloatingAction.visibility = View.GONE
+            }
+        }
     }
 
     private fun loadRepositoryDetails() {
@@ -124,32 +164,10 @@ class RepositoryDetailActivity : AppCompatActivity() {
     private fun setupRepoDetails(repo: Repository) {
         repoName = repo.name
         tvRepoName.text = repo.name
-        tvRepoDesc.text = repo.description ?: ""
+        repoDescription = repo.description ?: ""
 
         val currentUserId = SessionManager.getUserId(this)
         isOwner = repo.ownerId == currentUserId || repo.role == "OWNER"
-
-        // Update breadcrumbs with dynamic name
-        breadcrumbs.setPath(listOf(
-            "Dashboard" to { finish() },
-            repo.name to {}
-        ))
-
-        // Set up Read More option if description is long
-        if ((repo.description?.length ?: 0) > 100) {
-            tvReadMore.visibility = View.VISIBLE
-            tvReadMore.setOnClickListener {
-                if (tvRepoDesc.maxLines == 3) {
-                    tvRepoDesc.maxLines = Integer.MAX_VALUE
-                    tvReadMore.text = "Show less"
-                } else {
-                    tvRepoDesc.maxLines = 3
-                    tvReadMore.text = "Read more"
-                }
-            }
-        } else {
-            tvReadMore.visibility = View.GONE
-        }
 
         // Leave repository button visibility
         if (!isOwner) {
@@ -163,6 +181,7 @@ class RepositoryDetailActivity : AppCompatActivity() {
 
         // Update children fragments with the loaded isOwner status
         updateFragmentsOwnerStatus(isOwner)
+        updateFabVisibility(viewPager.currentItem)
     }
 
     private fun updateFragmentsOwnerStatus(owner: Boolean) {

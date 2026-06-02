@@ -68,8 +68,8 @@ class RegisterActivity : AppCompatActivity() {
             val firstName = etFirstName.text.toString().trim()
             val lastName = etLastName.text.toString().trim()
             val email = etEmail.text.toString().trim()
-            val password = etPassword.text.toString().trim()
-            val confirm = etConfirmPassword.text.toString().trim()
+            val password = etPassword.text.toString()
+            val confirm = etConfirmPassword.text.toString()
 
             var isValid = true
 
@@ -122,7 +122,23 @@ class RegisterActivity : AppCompatActivity() {
                             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
                         }
                     } else {
-                        val errorMsg = wrapper?.error?.code ?: "An account with this email already exists."
+                        var errorMsg = "An account with this email already exists."
+                        try {
+                            val errorStr = response.errorBody()?.string()
+                            if (!errorStr.isNullOrBlank()) {
+                                if (errorStr.trim().startsWith("{")) {
+                                    val errorObj = com.google.gson.Gson().fromJson(errorStr, ApiResponse::class.java)
+                                    errorMsg = errorObj.error?.message ?: errorObj.error?.code ?: errorMsg
+                                } else {
+                                    errorMsg = "Server Error ${response.code()}: ${errorStr.take(30)}"
+                                }
+                            } else {
+                                errorMsg = "Server Error ${response.code()}"
+                            }
+                        } catch (e: Exception) {
+                            errorMsg = "Server Error ${response.code()}"
+                        }
+                        
                         runOnUiThread {
                             Toast.makeText(this@RegisterActivity, errorMsg, Toast.LENGTH_LONG).show()
                             btnRegister.isEnabled = true

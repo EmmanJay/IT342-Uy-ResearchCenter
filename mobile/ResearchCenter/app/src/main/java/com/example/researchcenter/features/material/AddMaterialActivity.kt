@@ -141,7 +141,7 @@ class AddMaterialActivity : AppCompatActivity() {
     private fun setupTopBar() {
         val name = SessionManager.getName(this)
         val email = SessionManager.getEmail(this)
-        tvAvatar.setUser(name, email)
+        tvAvatar.setUser(name, email, SessionManager.getProfilePicture(this))
     }
 
     private fun setupListeners() {
@@ -184,7 +184,7 @@ class AddMaterialActivity : AppCompatActivity() {
 
         containerUrl.visibility = if (type == "LINK") View.VISIBLE else View.GONE
         containerIsbn.visibility = if (type == "REFERENCE") View.VISIBLE else View.GONE
-        containerGoogleSearch.visibility = if (type == "REFERENCE") View.VISIBLE else View.GONE
+        containerGoogleSearch.visibility = View.VISIBLE
         containerPdf.visibility = if (type == "PDF") View.VISIBLE else View.GONE
 
         // Clear warning/status when changing type

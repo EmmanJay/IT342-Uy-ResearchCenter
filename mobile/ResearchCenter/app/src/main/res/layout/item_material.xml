@@ -20,8 +20,10 @@
         <!-- Bookmark & Action buttons on top right -->
         <ImageButton
             android:id="@+id/btn_menu"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:padding="2dp"
+            android:scaleType="fitCenter"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@android:drawable/ic_menu_delete"
             app:tint="@color/error_red"
@@ -31,10 +33,12 @@
 
         <ImageButton
             android:id="@+id/btn_bookmark"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:padding="2dp"
+            android:scaleType="fitCenter"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/btn_star_big_off"
+            android:src="@drawable/ic_bookmark_border"
             app:tint="@color/text_hint"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toStartOf="@id/btn_menu" />

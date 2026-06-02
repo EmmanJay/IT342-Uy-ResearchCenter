@@ -8,10 +8,9 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import com.example.researchcenter.R
 import com.example.researchcenter.shared.api.MaterialApi
 import com.example.researchcenter.shared.api.RetrofitClient
@@ -20,20 +19,19 @@ import com.example.researchcenter.shared.model.ApiResponse
 import com.example.researchcenter.shared.model.BookmarkToggleResponse
 import com.example.researchcenter.shared.model.Material
 import com.example.researchcenter.shared.model.MaterialNote
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class MaterialDetailBottomSheet : BottomSheetDialogFragment() {
+class MaterialDetailActivity : AppCompatActivity() {
 
     private var materialId: Long = -1
     private var repoId: Long = -1
     private var isOwner: Boolean = false
-    private var onRefresh: (() -> Unit)? = null
 
     private lateinit var tvTitle: TextView
     private lateinit var tvMeta: TextView
@@ -50,6 +48,7 @@ class MaterialDetailBottomSheet : BottomSheetDialogFragment() {
     private lateinit var btnSaveNote: MaterialButton
     private lateinit var btnBookmark: MaterialButton
     private lateinit var btnDelete: MaterialButton
+    private lateinit var cardReferenceDetails: MaterialCardView
 
     private var currentMaterial: Material? = null
     private val statusValues = listOf("TO_READ", "IN_PROGRESS", "COMPLETED")
@@ -61,64 +60,47 @@ class MaterialDetailBottomSheet : BottomSheetDialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        materialId = arguments?.getLong("materialId") ?: -1L
-        repoId = arguments?.getLong("repoId") ?: -1L
-        isOwner = arguments?.getBoolean("isOwner") ?: false
-    }
+        setContentView(R.layout.activity_material_detail)
 
-    companion object {
-        fun newInstance(
-            materialId: Long,
-            repoId: Long,
-            isOwner: Boolean,
-            onRefresh: () -> Unit
-        ): MaterialDetailBottomSheet {
-            val sheet = MaterialDetailBottomSheet()
-            val args = Bundle()
-            args.putLong("materialId", materialId)
-            args.putLong("repoId", repoId)
-            args.putBoolean("isOwner", isOwner)
-            sheet.arguments = args
-            sheet.onRefresh = onRefresh
-            return sheet
+        materialId = intent.getLongExtra("MATERIAL_ID", -1L)
+        repoId = intent.getLongExtra("REPO_ID", -1L)
+        isOwner = intent.getBooleanExtra("IS_OWNER", false)
+
+        if (materialId == -1L) {
+            Toast.makeText(this, "Invalid Material ID", Toast.LENGTH_SHORT).show()
+            finish()
+            return
         }
-    }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.bottom_sheet_material_detail, container, false)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        initViews(view)
+        initViews()
         loadMaterialDetails()
     }
 
-    private fun initViews(view: View) {
-        tvTitle = view.findViewById(R.id.tvMatTitle)
-        tvMeta = view.findViewById(R.id.tvMatMeta)
-        tvType = view.findViewById(R.id.tvMatType)
-        tvStatusChip = view.findViewById(R.id.tvMatStatusChip)
-        actPersonalStatus = view.findViewById(R.id.actMatPersonalStatus)
-        btnOpenLink = view.findViewById(R.id.btnMatOpenLink)
-        tvAuthors = view.findViewById(R.id.tvMatAuthors)
-        tvPublisher = view.findViewById(R.id.tvMatPublisher)
-        tvYearIsbn = view.findViewById(R.id.tvMatYearIsbn)
-        tvDesc = view.findViewById(R.id.tvMatDesc)
-        llTags = view.findViewById(R.id.llMatTags)
-        etNote = view.findViewById(R.id.etMatNote)
-        btnSaveNote = view.findViewById(R.id.btnMatSaveNote)
-        btnBookmark = view.findViewById(R.id.btnMatBookmark)
-        btnDelete = view.findViewById(R.id.btnMatDelete)
+    private fun initViews() {
+        findViewById<View>(R.id.btn_back).setOnClickListener {
+            finish()
+        }
+
+        tvTitle = findViewById(R.id.tvMatTitle)
+        tvMeta = findViewById(R.id.tvMatMeta)
+        tvType = findViewById(R.id.tvMatType)
+        tvStatusChip = findViewById(R.id.tvMatStatusChip)
+        actPersonalStatus = findViewById(R.id.actMatPersonalStatus)
+        btnOpenLink = findViewById(R.id.btnMatOpenLink)
+        tvAuthors = findViewById(R.id.tvMatAuthors)
+        tvPublisher = findViewById(R.id.tvMatPublisher)
+        tvYearIsbn = findViewById(R.id.tvMatYearIsbn)
+        tvDesc = findViewById(R.id.tvMatDesc)
+        llTags = findViewById(R.id.llMatTags)
+        etNote = findViewById(R.id.etMatNote)
+        btnSaveNote = findViewById(R.id.btnMatSaveNote)
+        btnBookmark = findViewById(R.id.btnMatBookmark)
+        btnDelete = findViewById(R.id.btnMatDelete)
+        cardReferenceDetails = findViewById(R.id.cardReferenceDetails)
 
         // Status Dropdown Setup
         actPersonalStatus.setAdapter(
-            ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, statusValues.map { statusLabels[it] ?: it })
+            ArrayAdapter(this, android.R.layout.simple_list_item_1, statusValues.map { statusLabels[it] ?: it })
         )
 
         actPersonalStatus.setOnItemClickListener { _, _, position, _ ->
@@ -132,8 +114,6 @@ class MaterialDetailBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun loadMaterialDetails() {
-        if (materialId == -1L) return
-
         RetrofitClient.createService<MaterialApi>().getMaterial(materialId)
             .enqueue(object : Callback<ApiResponse<Material>> {
                 override fun onResponse(
@@ -143,7 +123,7 @@ class MaterialDetailBottomSheet : BottomSheetDialogFragment() {
                     if (response.isSuccessful && response.body()?.success == true) {
                         response.body()?.data?.let { material ->
                             currentMaterial = material
-                            activity?.runOnUiThread {
+                            runOnUiThread {
                                 populateDetails(material)
                             }
                         }
@@ -162,7 +142,7 @@ class MaterialDetailBottomSheet : BottomSheetDialogFragment() {
                 ) {
                     if (response.isSuccessful && response.body()?.success == true) {
                         val note = response.body()?.data
-                        activity?.runOnUiThread {
+                        runOnUiThread {
                             etNote.setText(note?.content ?: "")
                         }
                     }
@@ -173,7 +153,6 @@ class MaterialDetailBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun populateDetails(material: Material) {
-        val ctx = context ?: return
         try {
             tvTitle.text = material.title ?: ""
             tvMeta.text = "Uploaded by ${material.uploaderName ?: "Unknown"}"
@@ -188,7 +167,7 @@ class MaterialDetailBottomSheet : BottomSheetDialogFragment() {
             // Tags
             llTags.removeAllViews()
             material.tags?.forEach { tag ->
-                val tagView = TextView(ctx).apply {
+                val tagView = TextView(this).apply {
                     text = tag
                     textSize = 11f
                     setTextColor(Color.parseColor("#374151"))
@@ -236,9 +215,8 @@ class MaterialDetailBottomSheet : BottomSheetDialogFragment() {
                     try {
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(fileUrl))
                         startActivity(intent)
-                        dismiss()
                     } catch (e: Exception) {
-                        Toast.makeText(ctx, "Failed to open link", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Failed to open link", Toast.LENGTH_SHORT).show()
                     }
                 }
             } else {
@@ -247,6 +225,7 @@ class MaterialDetailBottomSheet : BottomSheetDialogFragment() {
 
             // Reference-specific values
             if (material.materialType.equals("REFERENCE", ignoreCase = true)) {
+                cardReferenceDetails.visibility = View.VISIBLE
                 if (!material.authors.isNullOrBlank()) {
                     tvAuthors.visibility = View.VISIBLE
                     tvAuthors.text = "Authors: ${material.authors}"
@@ -270,10 +249,10 @@ class MaterialDetailBottomSheet : BottomSheetDialogFragment() {
                         tvYearIsbn.isClickable = true
                         tvYearIsbn.setOnClickListener {
                             try {
-                                val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                 val clip = ClipData.newPlainText("ISBN", isbnStr)
                                 clipboard.setPrimaryClip(clip)
-                                Toast.makeText(ctx, "ISBN Copied!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this, "ISBN Copied!", Toast.LENGTH_SHORT).show()
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
@@ -283,14 +262,12 @@ class MaterialDetailBottomSheet : BottomSheetDialogFragment() {
                     tvYearIsbn.visibility = View.GONE
                 }
             } else {
-                tvAuthors.visibility = View.GONE
-                tvPublisher.visibility = View.GONE
-                tvYearIsbn.visibility = View.GONE
+                cardReferenceDetails.visibility = View.GONE
             }
 
             // Delete button
-            val currentUserId = SessionManager.getUserId(ctx)
-            val userRole = SessionManager.getRole(ctx)
+            val currentUserId = SessionManager.getUserId(this)
+            val userRole = SessionManager.getRole(this)
             val canDelete = userRole == "ADMIN" || material.uploaderId == currentUserId
 
             if (canDelete) {
@@ -303,7 +280,7 @@ class MaterialDetailBottomSheet : BottomSheetDialogFragment() {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(ctx, "Error loading details", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Error loading details", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -311,11 +288,11 @@ class MaterialDetailBottomSheet : BottomSheetDialogFragment() {
         val normalized = status.uppercase()
         view.text = statusLabels[normalized] ?: normalized
         
-        val (bgColor, textColor) = when (normalized) {
-            "TO_READ" -> Color.parseColor("#F3F4F6") to Color.parseColor("#374151")
-            "IN_PROGRESS" -> Color.parseColor("#FEF3C7") to Color.parseColor("#B45309")
-            "COMPLETED" -> Color.parseColor("#DCFCE7") to Color.parseColor("#15803D")
-            else -> Color.parseColor("#F3F4F6") to Color.parseColor("#374151")
+        val (bgColor, textColor, borderColor) = when (normalized) {
+            "TO_READ" -> Triple(Color.parseColor("#FEF9C3"), Color.parseColor("#A16207"), Color.parseColor("#FDE047"))
+            "IN_PROGRESS" -> Triple(Color.parseColor("#DBEAFE"), Color.parseColor("#1D4ED8"), Color.parseColor("#93C5FD"))
+            "COMPLETED" -> Triple(Color.parseColor("#DCFCE7"), Color.parseColor("#166534"), Color.parseColor("#86EFAC"))
+            else -> Triple(Color.parseColor("#F3F4F6"), Color.parseColor("#374151"), Color.parseColor("#E5E7EB"))
         }
 
         view.setTextColor(textColor)
@@ -323,6 +300,7 @@ class MaterialDetailBottomSheet : BottomSheetDialogFragment() {
             shape = GradientDrawable.RECTANGLE
             cornerRadius = 999f
             setColor(bgColor)
+            setStroke(2, borderColor)
         }
     }
 
@@ -334,11 +312,10 @@ class MaterialDetailBottomSheet : BottomSheetDialogFragment() {
                     response: Response<ApiResponse<Material>>
                 ) {
                     if (response.isSuccessful && response.body()?.success == true) {
-                        activity?.runOnUiThread {
-                            Toast.makeText(context, "Status updated!", Toast.LENGTH_SHORT).show()
+                        runOnUiThread {
+                            Toast.makeText(this@MaterialDetailActivity, "Status updated!", Toast.LENGTH_SHORT).show()
                             tvStatusChip.text = statusLabels[newStatus] ?: newStatus
                             applyStatusChip(tvStatusChip, newStatus)
-                            onRefresh?.invoke()
                         }
                     }
                 }
@@ -356,14 +333,13 @@ class MaterialDetailBottomSheet : BottomSheetDialogFragment() {
                 ) {
                     if (response.isSuccessful && response.body()?.success == true) {
                         val bookmarked = response.body()?.data?.bookmarked ?: false
-                        activity?.runOnUiThread {
+                        runOnUiThread {
                             Toast.makeText(
-                                context,
+                                this@MaterialDetailActivity,
                                 if (bookmarked) "Bookmarked!" else "Unbookmarked!",
                                 Toast.LENGTH_SHORT
                             ).show()
                             loadMaterialDetails()
-                            onRefresh?.invoke()
                         }
                     }
                 }
@@ -381,9 +357,9 @@ class MaterialDetailBottomSheet : BottomSheetDialogFragment() {
                     response: Response<ApiResponse<MaterialNote>>
                 ) {
                     if (response.isSuccessful && response.body()?.success == true) {
-                        activity?.runOnUiThread {
-                            Toast.makeText(context, "Note saved privately!", Toast.LENGTH_SHORT).show()
-                            dismiss()
+                        runOnUiThread {
+                            Toast.makeText(this@MaterialDetailActivity, "Note saved privately!", Toast.LENGTH_SHORT).show()
+                            finish()
                         }
                     }
                 }
@@ -393,7 +369,7 @@ class MaterialDetailBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun confirmDeleteMaterial() {
-        MaterialAlertDialogBuilder(requireContext())
+        MaterialAlertDialogBuilder(this)
             .setTitle("Delete Material")
             .setMessage("Are you sure you want to delete this material?")
             .setPositiveButton("Delete") { _, _ ->
@@ -408,10 +384,9 @@ class MaterialDetailBottomSheet : BottomSheetDialogFragment() {
             .enqueue(object : Callback<ApiResponse<Any>> {
                 override fun onResponse(call: Call<ApiResponse<Any>>, response: Response<ApiResponse<Any>>) {
                     if (response.isSuccessful) {
-                        activity?.runOnUiThread {
-                            Toast.makeText(context, "Material deleted successfully", Toast.LENGTH_SHORT).show()
-                            dismiss()
-                            onRefresh?.invoke()
+                        runOnUiThread {
+                            Toast.makeText(this@MaterialDetailActivity, "Material deleted successfully", Toast.LENGTH_SHORT).show()
+                            finish()
                         }
                     }
                 }

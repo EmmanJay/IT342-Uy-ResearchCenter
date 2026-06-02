@@ -31,12 +31,10 @@
         android:drawableStart="@android:drawable/ic_menu_search"
         android:drawablePadding="@dimen/space_2" />
 
-    <ListView
-        android:id="@+id/lvSearchResults"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSearchResults"
         android:layout_width="match_parent"
         android:layout_height="250dp"
-        android:divider="@null"
-        android:dividerHeight="0dp"
         android:visibility="visible"
         android:layout_marginTop="@dimen/space_4" />
 

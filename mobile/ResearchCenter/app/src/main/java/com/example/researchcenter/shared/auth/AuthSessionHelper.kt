@@ -11,5 +11,6 @@ object AuthSessionHelper {
         SessionManager.saveEmail(context, data.email)
         SessionManager.saveName(context, "${data.firstname} ${data.lastname}".trim())
         SessionManager.saveRole(context, data.role)
+        SessionManager.saveProfilePicture(context, data.profilePicture)
     }
 }

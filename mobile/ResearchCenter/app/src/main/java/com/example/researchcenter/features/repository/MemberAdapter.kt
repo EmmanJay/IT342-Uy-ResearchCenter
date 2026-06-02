@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.researchcenter.R
 import com.example.researchcenter.shared.model.RepositoryMember
+import com.example.researchcenter.shared.ui.UserAvatarView
 
 class MemberAdapter(
     private val items: List<RepositoryMember>,
@@ -16,6 +17,7 @@ class MemberAdapter(
 ) : RecyclerView.Adapter<MemberAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val avatarView: UserAvatarView = view.findViewById(R.id.avatar_view)
         val tvName: TextView = view.findViewById(R.id.tv_name)
         val tvEmail: TextView = view.findViewById(R.id.tv_email)
         val tvRole: TextView = view.findViewById(R.id.tv_role)
@@ -33,6 +35,7 @@ class MemberAdapter(
         holder.tvName.text = member.name
         holder.tvEmail.text = member.email
         holder.tvRole.text = member.role
+        holder.avatarView.setUser(member.name, member.email, member.profilePicture)
 
         val canRemove = isOwner && member.role != "OWNER"
         holder.btnRemove.visibility = if (canRemove) View.VISIBLE else View.GONE

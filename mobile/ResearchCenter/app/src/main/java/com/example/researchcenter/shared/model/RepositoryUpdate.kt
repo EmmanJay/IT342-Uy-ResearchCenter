@@ -7,5 +7,7 @@ data class RepositoryUpdate(
     val authorId: Long,
     val authorName: String,
     val createdAt: String,
-    val updatedAt: String? = null
+    val updatedAt: String? = null,
+    val authorProfilePicture: String? = null,
+    val authorRole: String? = null
 )

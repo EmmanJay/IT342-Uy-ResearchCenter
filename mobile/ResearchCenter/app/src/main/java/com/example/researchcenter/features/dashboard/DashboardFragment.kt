@@ -36,21 +36,17 @@ class DashboardFragment : Fragment() {
 
     private lateinit var rvMyRepositories: RecyclerView
     private lateinit var rvJoinedRepositories: RecyclerView
-    private lateinit var rvActivityFeed: RecyclerView
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var layoutEmptyState: View
     private lateinit var tvMyReposHeader: TextView
     private lateinit var tvJoinedReposHeader: TextView
     private lateinit var tvWelcome: TextView
-    private lateinit var tvNoActivity: TextView
 
     private val myRepositories = mutableListOf<Repository>()
     private val joinedRepositories = mutableListOf<Repository>()
-    private val activities = mutableListOf<ActivityLog>()
 
     private lateinit var myAdapter: RepositoryAdapter
     private lateinit var joinedAdapter: RepositoryAdapter
-    private lateinit var activityAdapter: ActivityLogAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_dashboard, container, false)
@@ -62,19 +58,16 @@ class DashboardFragment : Fragment() {
         setupAdapters()
         loadMe()
         loadRepositories()
-        loadActivities()
     }
 
     private fun initViews(view: View) {
         rvMyRepositories = view.findViewById(R.id.rv_my_repositories)
         rvJoinedRepositories = view.findViewById(R.id.rv_joined_repositories)
-        rvActivityFeed = view.findViewById(R.id.rv_activity_feed)
         swipeRefresh = view.findViewById(R.id.swipe_refresh)
         layoutEmptyState = view.findViewById(R.id.layout_empty_state)
         tvMyReposHeader = view.findViewById(R.id.tv_my_repos_header)
         tvJoinedReposHeader = view.findViewById(R.id.tv_joined_repos_header)
         tvWelcome = view.findViewById(R.id.tv_welcome)
-        tvNoActivity = view.findViewById(R.id.tv_no_activity)
 
         val sessionName = SessionManager.getName(requireContext())?.split(" ")?.firstOrNull() ?: "User"
         tvWelcome.text = getString(R.string.welcome_back, sessionName)
@@ -82,7 +75,6 @@ class DashboardFragment : Fragment() {
         swipeRefresh.setColorSchemeColors(resources.getColor(R.color.primary_green, null))
         swipeRefresh.setOnRefreshListener {
             loadRepositories()
-            loadActivities()
         }
 
         view.findViewById<MaterialButton>(R.id.btn_create_repo).setOnClickListener {
@@ -112,10 +104,6 @@ class DashboardFragment : Fragment() {
         )
         rvJoinedRepositories.layoutManager = LinearLayoutManager(context)
         rvJoinedRepositories.adapter = joinedAdapter
-
-        activityAdapter = ActivityLogAdapter(activities)
-        rvActivityFeed.layoutManager = LinearLayoutManager(context)
-        rvActivityFeed.adapter = activityAdapter
     }
 
     private fun openRepoDetails(repo: Repository) {
@@ -222,22 +210,7 @@ class DashboardFragment : Fragment() {
         rvJoinedRepositories.visibility = if (joinedRepositories.isNotEmpty()) View.VISIBLE else View.GONE
     }
 
-    private fun loadActivities() {
-        RetrofitClient.createService<ActivityApi>().getActivities(0, 10)
-            .enqueue(object : Callback<ApiResponse<List<ActivityLog>>> {
-                override fun onResponse(call: Call<ApiResponse<List<ActivityLog>>>, response: Response<ApiResponse<List<ActivityLog>>>) {
-                    activity?.runOnUiThread {
-                        if (response.isSuccessful && response.body()?.success == true) {
-                            activities.clear()
-                            response.body()?.data?.let { activities.addAll(it) }
-                            activityAdapter.notifyDataSetChanged()
-                            tvNoActivity.visibility = if (activities.isEmpty()) View.VISIBLE else View.GONE
-                        }
-                    }
-                }
-                override fun onFailure(call: Call<ApiResponse<List<ActivityLog>>>, t: Throwable) {}
-            })
-    }
+
 
     private fun showCreateRepoSheet() {
         CreateRepositoryBottomSheet { loadRepositories() }
@@ -259,7 +232,11 @@ class DashboardFragment : Fragment() {
             .setPositiveButton(R.string.save) { _, _ ->
                 val name = etName.text.toString().trim()
                 val desc = etDesc.text.toString().trim()
-                if (name.isNotEmpty()) updateRepository(repo.id, name, desc)
+                if (name.isEmpty()) {
+                    Toast.makeText(context, "Repository name cannot be empty", Toast.LENGTH_SHORT).show()
+                } else {
+                    updateRepository(repo.id, name, desc)
+                }
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
@@ -331,7 +308,6 @@ class DashboardFragment : Fragment() {
         super.onResume()
         if (::swipeRefresh.isInitialized) {
             loadRepositories()
-            loadActivities()
         }
     }
 }

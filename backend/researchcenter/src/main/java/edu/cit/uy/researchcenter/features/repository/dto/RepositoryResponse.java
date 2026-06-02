@@ -35,5 +35,6 @@ public class RepositoryResponse {
         private String role;
         private String status;
         private Instant joinedAt;
+        private String profilePicture;
     }
 }

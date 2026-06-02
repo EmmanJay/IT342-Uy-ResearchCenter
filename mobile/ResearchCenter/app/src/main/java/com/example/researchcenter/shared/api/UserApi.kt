@@ -12,5 +12,5 @@ interface UserApi {
     fun updateProfile(@Body req: UpdateProfileRequest): Call<ApiResponse<UserData>>
 
     @GET("users/search")
-    fun searchUsers(@Query("email") email: String): Call<ApiResponse<List<User>>>
+    fun searchUsers(@Query("email") email: String): Call<ApiResponse<User>>
 }

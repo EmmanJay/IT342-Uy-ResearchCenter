@@ -1,5 +1,6 @@
 package com.example.researchcenter.features.repository.tabs
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,8 +30,35 @@ class MemberAdapter(
         val member = members[position]
         holder.tvName.text = member.name
         holder.tvEmail.text = member.email
-        holder.tvRole.text = member.role
-        holder.avatarView.setUser(member.name, member.email)
+        
+        holder.tvRole.text = when (member.role.uppercase()) {
+            "OWNER" -> "Owner"
+            "MEMBER" -> "Member"
+            else -> member.role
+        }
+
+        val bgColor: Int
+        val textColor: Int
+        val borderColor: Int
+        if (member.role.uppercase() == "OWNER") {
+            bgColor = Color.parseColor("#DCFCE7")
+            textColor = Color.parseColor("#166534")
+            borderColor = Color.parseColor("#86EFAC")
+        } else {
+            bgColor = Color.parseColor("#DBEAFE")
+            textColor = Color.parseColor("#1D4ED8")
+            borderColor = Color.parseColor("#93C5FD")
+        }
+
+        holder.tvRole.background = android.graphics.drawable.GradientDrawable().apply {
+            shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+            cornerRadius = 999f
+            setColor(bgColor)
+            setStroke(2, borderColor)
+        }
+        holder.tvRole.setTextColor(textColor)
+
+        holder.avatarView.setUser(member.name, member.email, member.profilePicture)
     }
 
     override fun getItemCount() = members.size

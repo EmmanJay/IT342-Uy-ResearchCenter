@@ -1399,9 +1399,12 @@ const RepositoryDetailPage = () => {
                       ) : (
                         <div className="flex items-center justify-between gap-3">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-green-700 text-white text-sm font-bold flex items-center justify-center shrink-0 uppercase tracking-wide">
-                              {searchResult?.firstname?.[0]}{searchResult?.lastname?.[0]}
-                            </div>
+                            <UserAvatar 
+                              name={`${searchResult?.firstname} ${searchResult?.lastname}`} 
+                              email={searchResult?.email} 
+                              imageUrl={searchResult?.profilePicture} 
+                              size="sm" 
+                            />
                             <div>
                               <p className="text-sm font-semibold text-gray-800">{searchResult?.firstname} {searchResult?.lastname}</p>
                               <p className="text-xs text-gray-400">{searchResult?.email}</p>
@@ -1435,9 +1438,12 @@ const RepositoryDetailPage = () => {
                 return (
                   <div key={member.id || member.userId} className="bg-white rounded-xl border border-gray-100 p-4 flex items-center justify-between gap-3 flex-shrink-0">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-green-700 text-white text-sm font-bold flex items-center justify-center shrink-0 tracking-wide">
-                        {initials}
-                      </div>
+                      <UserAvatar 
+                        name={`${member.firstname} ${member.lastname}`} 
+                        email={member.email} 
+                        imageUrl={member.profilePicture} 
+                        size="md" 
+                      />
                       <div>
                         <p className="text-sm font-semibold text-gray-800">{member.firstname} {member.lastname}</p>
                         <p className="text-xs text-gray-400 mt-0.5">{member.email}</p>
@@ -1593,7 +1599,7 @@ const RepositoryDetailPage = () => {
                         )}
                     </div>
                     <div className="flex items-center gap-4 mb-4">
-                      <UserAvatar name={update.authorName} size="md" />
+                      <UserAvatar name={update.authorName} imageUrl={update.authorProfilePicture} size="md" />
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-gray-900 tracking-tight">{update.authorName}</span>

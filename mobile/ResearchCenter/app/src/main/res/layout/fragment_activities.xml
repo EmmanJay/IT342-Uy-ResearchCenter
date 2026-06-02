@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -6,7 +7,7 @@
     android:background="@color/background_gray"
     android:padding="16dp">
 
-    <!-- Header -->
+    <!-- Header (Clean, styled for root bottom tab - NO back button!) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -18,15 +19,15 @@
         <ImageView
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:src="@drawable/ic_bell"
+            android:src="@drawable/ic_history"
             app:tint="@color/primary_green_dark"
             android:layout_marginEnd="12dp"
-            android:contentDescription="Notifications Icon" />
+            android:contentDescription="Activities Icon" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Notifications"
+            android:text="Your Recent Activities"
             android:textSize="22sp"
             android:textStyle="bold"
             android:textColor="@color/gray_900" />
@@ -38,9 +39,9 @@
         android:background="@color/emerald_100"
         android:layout_marginBottom="16dp" />
 
-    <!-- Notifications List -->
+    <!-- Activities List -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_notifications"
+        android:id="@+id/rv_activities"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
@@ -54,8 +55,7 @@
         android:textAllCaps="false"
         android:textColor="@color/primary_green"
         android:visibility="gone"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
-        xmlns:app="http://schemas.android.com/apk/res-auto" />
+        style="@style/Widget.MaterialComponents.Button.TextButton" />
 
     <!-- Empty State -->
     <LinearLayout
@@ -68,13 +68,13 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="🔔"
+            android:text="⏳"
             android:textSize="48sp"
             android:layout_marginBottom="16dp" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/no_notifications"
+            android:text="No activities found"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@color/gray_900" />

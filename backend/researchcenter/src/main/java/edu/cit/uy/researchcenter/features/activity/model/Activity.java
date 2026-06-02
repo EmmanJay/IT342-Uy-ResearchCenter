@@ -26,6 +26,9 @@ public class Activity {
     @Column(name = "actor_name")
     private String actorName;
 
+    @Transient
+    private String actorProfilePicture;
+
     @Column(nullable = false)
     private String action;
 

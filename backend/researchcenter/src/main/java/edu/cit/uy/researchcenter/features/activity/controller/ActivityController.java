@@ -13,6 +13,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import edu.cit.uy.researchcenter.features.auth.repository.UserRepository;
+
 import java.time.Instant;
 import java.util.Map;
 
@@ -23,6 +25,14 @@ public class ActivityController {
 
     private final ActivityRepository activityRepository;
     private final UserService userService;
+    private final UserRepository userRepository;
+
+    private void populateProfilePicture(Activity activity) {
+        if (activity != null && activity.getUserId() != null) {
+            userRepository.findById(activity.getUserId())
+                    .ifPresent(u -> activity.setActorProfilePicture(u.getProfilePicture()));
+        }
+    }
 
     @GetMapping
     public ResponseEntity<?> getActivities(
@@ -43,6 +53,8 @@ public class ActivityController {
             activities = activityRepository.findByUserIdOrderByCreatedAtDesc(user.getId(), pageable);
         }
 
+        activities.getContent().forEach(this::populateProfilePicture);
+
         return ResponseEntity.ok(wrap(true, activities.getContent(), null));
     }
 
@@ -52,6 +64,7 @@ public class ActivityController {
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Activity> activities = activityRepository.findAllByOrderByCreatedAtDesc(pageable);
+        activities.getContent().forEach(this::populateProfilePicture);
         return ResponseEntity.ok(wrap(true, activities.getContent(), null));
     }
 
@@ -70,6 +83,8 @@ public class ActivityController {
         } else {
             notifications = activityRepository.findNotificationsForUser(user.getId(), pageable);
         }
+
+        notifications.getContent().forEach(this::populateProfilePicture);
 
         return ResponseEntity.ok(wrap(true, notifications.getContent(), null));
     }

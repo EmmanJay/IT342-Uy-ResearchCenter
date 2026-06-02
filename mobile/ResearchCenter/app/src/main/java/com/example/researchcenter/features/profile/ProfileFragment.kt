@@ -1,20 +1,21 @@
 package com.example.researchcenter.features.profile
 
+import android.app.Activity.RESULT_OK
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.researchcenter.R
 import com.example.researchcenter.features.auth.LoginActivity
 import com.example.researchcenter.features.main.MainActivity
-import com.example.researchcenter.shared.api.ActivityApi
 import com.example.researchcenter.shared.api.AuthApi
 import com.example.researchcenter.shared.api.RetrofitClient
 import com.example.researchcenter.shared.auth.SessionManager
@@ -29,6 +30,11 @@ import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import com.example.researchcenter.shared.data.AppDatabase
 
 class ProfileFragment : Fragment() {
 
@@ -37,12 +43,51 @@ class ProfileFragment : Fragment() {
     private lateinit var tvRoleBadge: TextView
     private lateinit var tvStatMemberSince: TextView
     private lateinit var tvStatRepos: TextView
-    private lateinit var tvStatDays: TextView
     private lateinit var avatarProfile: UserAvatarView
-    private lateinit var rvActivities: RecyclerView
-    private lateinit var progressBar: ProgressBar
-    private val activities = mutableListOf<ActivityLog>()
-    private lateinit var activityAdapter: ActivityLogAdapter
+    private lateinit var ivCameraEdit: ImageView
+
+    private var selectedImageUri: Uri? = null
+
+    private fun copyUriToInternalStorage(uri: Uri): Uri? {
+        val ctx = context ?: return null
+        return try {
+            val inputStream = ctx.contentResolver.openInputStream(uri) ?: return null
+            val outputFile = java.io.File(ctx.filesDir, "profile_avatar.jpg")
+            val outputStream = java.io.FileOutputStream(outputFile)
+            inputStream.use { input ->
+                outputStream.use { output ->
+                    input.copyTo(output)
+                }
+            }
+            Uri.fromFile(outputFile)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    private val imagePickerLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            result.data?.data?.let { uri ->
+                val ctx = context ?: return@let
+                val persistentUri = copyUriToInternalStorage(uri)
+                if (persistentUri != null) {
+                    selectedImageUri = persistentUri
+                    SessionManager.saveLocalAvatarUri(ctx, persistentUri.toString())
+                    try {
+                        avatarProfile.setImageURI(persistentUri)
+                        Toast.makeText(ctx, "Profile photo updated", Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        Toast.makeText(ctx, "Failed to set image", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(ctx, "Failed to save profile picture", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_profile, container, false)
@@ -56,10 +101,8 @@ class ProfileFragment : Fragment() {
         tvRoleBadge = view.findViewById(R.id.tv_role_badge)
         tvStatMemberSince = view.findViewById(R.id.tv_stat_member_since)
         tvStatRepos = view.findViewById(R.id.tv_stat_repos)
-        tvStatDays = view.findViewById(R.id.tv_stat_days)
         avatarProfile = view.findViewById(R.id.avatar_profile)
-        rvActivities = view.findViewById(R.id.rv_activity_log)
-        progressBar = view.findViewById(R.id.progress_activity)
+        ivCameraEdit = view.findViewById(R.id.iv_camera_edit)
 
         val btnEdit = view.findViewById<MaterialButton>(R.id.btn_edit_profile)
         val btnLogout = view.findViewById<MaterialButton>(R.id.btn_logout)
@@ -69,16 +112,27 @@ class ProfileFragment : Fragment() {
         val sessionEmail = SessionManager.getEmail(requireContext()) ?: ""
         tvName.text = sessionName
         tvEmail.text = sessionEmail
-        avatarProfile.setUser(sessionName, sessionEmail)
+        
+        val cachedLocalUri = SessionManager.getLocalAvatarUri(requireContext())
+        val cachedBackendPic = SessionManager.getProfilePicture(requireContext())
+        if (!cachedBackendPic.isNullOrEmpty()) {
+            avatarProfile.setUser(sessionName, sessionEmail, cachedBackendPic)
+        } else if (cachedLocalUri != null) {
+            avatarProfile.setImageURI(Uri.parse(cachedLocalUri))
+        } else {
+            avatarProfile.setUser(sessionName, sessionEmail)
+        }
+        
         tvRoleBadge.text = SessionManager.getRole(requireContext()) ?: "USER"
 
-        activityAdapter = ActivityLogAdapter(activities)
-        rvActivities.layoutManager = LinearLayoutManager(context)
-        rvActivities.adapter = activityAdapter
+        // Camera icon click to pick profile image
+        ivCameraEdit.setOnClickListener { openImagePicker() }
+        avatarProfile.setOnClickListener { openImagePicker() }
 
         btnEdit.setOnClickListener { showEditProfileDialog() }
         btnLogout.setOnClickListener {
-            SessionManager.clearSession(requireContext())
+            val ctx = requireContext()
+            SessionManager.clearSession(ctx)
             val intent = Intent(requireContext(), LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
@@ -86,7 +140,12 @@ class ProfileFragment : Fragment() {
         }
 
         loadMe()
-        loadActivities()
+    }
+
+    private fun openImagePicker() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        intent.type = "image/*"
+        imagePickerLauncher.launch(intent)
     }
 
     private fun loadMe() {
@@ -106,7 +165,18 @@ class ProfileFragment : Fragment() {
                         tvName.text = fullName
                         tvEmail.text = user.email
                         tvRoleBadge.text = user.role
-                        avatarProfile.setUser(fullName, user.email)
+                        val cachedLocalUri = SessionManager.getLocalAvatarUri(ctx)
+                        val backendPic = user.profilePicture
+                        SessionManager.saveProfilePicture(ctx, backendPic)
+                        if (selectedImageUri == null) {
+                            if (!backendPic.isNullOrEmpty()) {
+                                avatarProfile.setUser(fullName, user.email, backendPic)
+                            } else if (cachedLocalUri != null) {
+                                avatarProfile.setImageURI(Uri.parse(cachedLocalUri))
+                            } else {
+                                avatarProfile.setUser(fullName, user.email)
+                            }
+                        }
 
                         // Stats
                         user.createdAt?.let { dateStr ->
@@ -114,13 +184,27 @@ class ProfileFragment : Fragment() {
                                 val parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
                                 val date = parser.parse(dateStr.take(19))
                                 if (date != null) {
-                                    val formatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-                                    tvStatMemberSince.text = getString(R.string.member_since, formatter.format(date))
-                                    val days = TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - date.time)
-                                    tvStatDays.text = getString(R.string.days_active, days.toInt())
+                                    val formatter = SimpleDateFormat("MMM yyyy", Locale.getDefault())
+                                    tvStatMemberSince.text = formatter.format(date)
                                 }
                             } catch (_: Exception) {
-                                tvStatMemberSince.text = getString(R.string.member_since, dateStr.take(10))
+                                tvStatMemberSince.text = dateStr.take(7)
+                            }
+                        }
+
+                        // Repos Count from local DB cache
+                        val ctxLocal = context
+                        if (ctxLocal != null) {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                try {
+                                    val db = AppDatabase.getInstance(ctxLocal)
+                                    val count = db.repositoryDao().getAll().size
+                                    withContext(Dispatchers.Main) {
+                                        tvStatRepos.text = count.toString()
+                                    }
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
                             }
                         }
 
@@ -169,7 +253,9 @@ class ProfileFragment : Fragment() {
                             val ctx = context ?: return@runOnUiThread
                             SessionManager.saveName(ctx, fullName)
                             tvName.text = fullName
-                            avatarProfile.setUser(fullName, user.email)
+                            if (selectedImageUri == null) {
+                                avatarProfile.setUser(fullName, user.email)
+                            }
                             Toast.makeText(ctx, "Profile updated", Toast.LENGTH_SHORT).show()
                             (activity as? MainActivity)?.refreshAvatar()
                         }
@@ -187,31 +273,10 @@ class ProfileFragment : Fragment() {
             })
     }
 
-    private fun loadActivities() {
-        progressBar.visibility = View.VISIBLE
-        RetrofitClient.createService<ActivityApi>().getActivities(0, 10)
-            .enqueue(object : Callback<ApiResponse<List<ActivityLog>>> {
-                override fun onResponse(call: Call<ApiResponse<List<ActivityLog>>>, response: Response<ApiResponse<List<ActivityLog>>>) {
-                    activity?.runOnUiThread {
-                        progressBar.visibility = View.GONE
-                        if (response.isSuccessful && response.body()?.success == true) {
-                            activities.clear()
-                            response.body()?.data?.let { activities.addAll(it) }
-                            activityAdapter.notifyDataSetChanged()
-                        }
-                    }
-                }
-                override fun onFailure(call: Call<ApiResponse<List<ActivityLog>>>, t: Throwable) {
-                    activity?.runOnUiThread { progressBar.visibility = View.GONE }
-                }
-            })
-    }
-
     override fun onResume() {
         super.onResume()
         if (::tvName.isInitialized) {
             loadMe()
-            loadActivities()
         }
     }
 }
